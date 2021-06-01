@@ -1,7 +1,7 @@
 /**
- * Common constants.
- * @module common
- *//***/
+ * @fileoverview Common constants used by various parts of the compiler.
+ * @license Apache-2.0
+ */
 
 /** Indicates traits of a {@link Node} or {@link Element}. */
 export enum CommonFlags {
@@ -37,7 +37,7 @@ export enum CommonFlags {
   /** Has a `set` modifier. */
   SET = 1 << 12,
   /** Has a definite assignment assertion `!` as in `x!: i32;`. */
-  DEFINITE_ASSIGNMENT = 1 << 13,
+  DEFINITELY_ASSIGNED = 1 << 13,
 
   // Extended modifiers usually derived from basic modifiers
 
@@ -62,21 +62,23 @@ export enum CommonFlags {
   RESOLVED = 1 << 21,
   /** Is compiled. */
   COMPILED = 1 << 22,
+  /** Did error. */
+  ERRORED = 1 << 23,
   /** Has a constant value and is therefore inlined. */
-  INLINED = 1 << 23,
+  INLINED = 1 << 24,
   /** Is scoped. */
-  SCOPED = 1 << 24,
-  /** Is a trampoline. */
-  TRAMPOLINE = 1 << 25,
+  SCOPED = 1 << 25,
+  /** Is a stub. */
+  STUB = 1 << 26,
   /** Is a virtual method. */
-  VIRTUAL = 1 << 26,
+  VIRTUAL = 1 << 27,
   /** Is (part of) a closure. */
-  CLOSURE = 1 << 27,
+  CLOSURE = 1 << 28,
 
   // Other
 
   /** Is quoted. */
-  QUOTED = 1 << 28
+  QUOTED = 1 << 29
 }
 
 /** Path delimiter inserted between file system levels. */
@@ -99,6 +101,8 @@ export const LIBRARY_SUBST = "~lib";
 export const LIBRARY_PREFIX = LIBRARY_SUBST + PATH_DELIMITER;
 /** Path index suffix. */
 export const INDEX_SUFFIX = PATH_DELIMITER + "index";
+/** Stub function delimiter. */
+export const STUB_DELIMITER = "@";
 
 /** Common names. */
 export namespace CommonNames {
@@ -119,7 +123,12 @@ export namespace CommonNames {
   export const f32 = "f32";
   export const f64 = "f64";
   export const v128 = "v128";
+  export const funcref = "funcref";
+  export const externref = "externref";
   export const anyref = "anyref";
+  export const eqref = "eqref";
+  export const i31ref = "i31ref";
+  export const dataref = "dataref";
   export const i8x16 = "i8x16";
   export const u8x16 = "u8x16";
   export const i16x8 = "i16x8";
@@ -154,6 +163,9 @@ export namespace CommonNames {
   export const ASC_TABLE_BASE = "ASC_TABLE_BASE";
   export const ASC_OPTIMIZE_LEVEL = "ASC_OPTIMIZE_LEVEL";
   export const ASC_SHRINK_LEVEL = "ASC_SHRINK_LEVEL";
+  export const ASC_LOW_MEMORY_LIMIT = "ASC_LOW_MEMORY_LIMIT";
+  export const ASC_EXPORT_RUNTIME = "ASC_EXPORT_RUNTIME";
+  export const ASC_WASI = "ASC_WASI";
   export const ASC_FEATURE_SIGN_EXTENSION = "ASC_FEATURE_SIGN_EXTENSION";
   export const ASC_FEATURE_MUTABLE_GLOBALS = "ASC_FEATURE_MUTABLE_GLOBALS";
   export const ASC_FEATURE_NONTRAPPING_F2I = "ASC_FEATURE_NONTRAPPING_F2I";
@@ -163,6 +175,12 @@ export namespace CommonNames {
   export const ASC_FEATURE_EXCEPTION_HANDLING = "ASC_FEATURE_EXCEPTION_HANDLING";
   export const ASC_FEATURE_TAIL_CALLS = "ASC_FEATURE_TAIL_CALLS";
   export const ASC_FEATURE_REFERENCE_TYPES = "ASC_FEATURE_REFERENCE_TYPES";
+  export const ASC_FEATURE_MULTI_VALUE = "ASC_FEATURE_MULTI_VALUE";
+  export const ASC_FEATURE_GC = "ASC_FEATURE_GC";
+  export const ASC_FEATURE_MEMORY64 = "ASC_FEATURE_MEMORY64";
+  export const ASC_VERSION_MAJOR = "ASC_VERSION_MAJOR";
+  export const ASC_VERSION_MINOR = "ASC_VERSION_MINOR";
+  export const ASC_VERSION_PATCH = "ASC_VERSION_PATCH";
   // classes
   export const I8 = "I8";
   export const I16 = "I16";
@@ -178,16 +196,25 @@ export namespace CommonNames {
   export const F32 = "F32";
   export const F64 = "F64";
   export const V128 = "V128";
+  export const Funcref = "Funcref";
+  export const Externref = "Externref";
   export const Anyref = "Anyref";
+  export const Eqref = "Eqref";
+  export const I31ref = "I31ref";
+  export const Dataref = "Dataref";
   export const String = "String";
+  export const Object = "Object";
   export const Array = "Array";
-  export const FixedArray = "FixedArray";
+  export const StaticArray = "StaticArray";
   export const Set = "Set";
   export const Map = "Map";
+  export const Function = "Function";
   export const ArrayBufferView = "ArrayBufferView";
   export const ArrayBuffer = "ArrayBuffer";
   export const Math = "Math";
   export const Mathf = "Mathf";
+  export const NativeMath = "NativeMath";
+  export const NativeMathf = "NativeMathf";
   export const Int8Array = "Int8Array";
   export const Int16Array = "Int16Array";
   export const Int32Array = "Int32Array";
@@ -199,21 +226,30 @@ export namespace CommonNames {
   export const Uint64Array = "Uint64Array";
   export const Float32Array = "Float32Array";
   export const Float64Array = "Float64Array";
+  export const TemplateStringsArray = "TemplateStringsArray";
   export const Error = "Error";
   // runtime
   export const abort = "abort";
+  export const trace = "trace";
+  export const seed = "seed";
   export const pow = "pow";
+  export const ipow32 = "ipow32";
+  export const ipow64 = "ipow64";
   export const mod = "mod";
   export const alloc = "__alloc";
   export const realloc = "__realloc";
   export const free = "__free";
-  export const retain = "__retain";
-  export const release = "__release";
+  export const new_ = "__new";
+  export const renew = "__renew";
+  export const link = "__link";
   export const collect = "__collect";
   export const typeinfo = "__typeinfo";
   export const instanceof_ = "__instanceof";
   export const visit = "__visit";
-  export const allocArray = "__allocArray";
+  export const newBuffer = "__newBuffer";
+  export const newArray = "__newArray";
+  export const BLOCK = "~lib/rt/common/BLOCK";
+  export const OBJECT = "~lib/rt/common/OBJECT";
 }
 
 // shared

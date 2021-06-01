@@ -1,4 +1,4 @@
-import { itoa, dtoa } from "./util/number";
+import { itoa32, utoa32, itoa64, utoa64, dtoa } from "./util/number";
 import { strtol } from "./util/string";
 
 // @ts-ignore: decorator
@@ -17,7 +17,7 @@ export declare function isNaN<T extends number>(value: T): bool;
 @builtin
 export declare function isFinite<T extends number>(value: T): bool;
 
-@sealed @unmanaged
+@final @unmanaged
 export abstract class I8 {
 
   // @ts-ignore: decorator
@@ -32,13 +32,12 @@ export abstract class I8 {
     return <i8>strtol<i32>(value, radix);
   }
 
-  toString(this: i8): String {
-    // TODO: radix
-    return itoa(this);
+  toString(this: i8, radix: i32 = 10): String {
+    return itoa32(this, radix);
   }
 }
 
-@sealed @unmanaged
+@final @unmanaged
 export abstract class I16 {
 
   // @ts-ignore: decorator
@@ -53,13 +52,12 @@ export abstract class I16 {
     return <i16>strtol<i32>(value, radix);
   }
 
-  toString(this: i16): String {
-    // TODO: radix
-    return itoa(this);
+  toString(this: i16, radix: i32 = 10): String {
+    return itoa32(this, radix);
   }
 }
 
-@sealed @unmanaged
+@final @unmanaged
 export abstract class I32 {
 
   // @ts-ignore: decorator
@@ -74,13 +72,12 @@ export abstract class I32 {
     return <i32>strtol<i32>(value, radix);
   }
 
-  toString(this: i32): String {
-    // TODO: radix
-    return itoa(this);
+  toString(this: i32, radix: i32 = 10): String {
+    return itoa32(this, radix);
   }
 }
 
-@sealed @unmanaged
+@final @unmanaged
 export abstract class I64 {
 
   // @ts-ignore: decorator
@@ -95,13 +92,12 @@ export abstract class I64 {
     return strtol<i64>(value, radix);
   }
 
-  toString(this: i64): String {
-    // TODO: radix
-    return itoa(this);
+  toString(this: i64, radix: i32 = 10): String {
+    return itoa64(this, radix);
   }
 }
 
-@sealed @unmanaged
+@final @unmanaged
 export abstract class Isize {
 
   // @ts-ignore: decorator
@@ -116,13 +112,16 @@ export abstract class Isize {
     return <isize>strtol<i64>(value, radix);
   }
 
-  toString(this: isize): String {
-    // TODO: radix
-    return itoa(this);
+  toString(this: isize, radix: i32 = 10): String {
+    if (sizeof<isize>() == 4) {
+      return itoa32(<i32>this, radix);
+    } else {
+      return itoa64(<i64>this, radix);
+    }
   }
 }
 
-@sealed @unmanaged
+@final @unmanaged
 export abstract class U8 {
 
   // @ts-ignore: decorator
@@ -137,13 +136,12 @@ export abstract class U8 {
     return <u8>strtol<i32>(value, radix);
   }
 
-  toString(this: u8): String {
-    // TODO: radix
-    return itoa(this);
+  toString(this: u8, radix: i32 = 10): String {
+    return utoa32(this, radix);
   }
 }
 
-@sealed @unmanaged
+@final @unmanaged
 export abstract class U16 {
 
   // @ts-ignore: decorator
@@ -158,13 +156,12 @@ export abstract class U16 {
     return <u16>strtol<i32>(value, radix);
   }
 
-  toString(this: u16): String {
-    // TODO: radix
-    return itoa(this);
+  toString(this: u16, radix: i32 = 10): String {
+    return utoa32(this, radix);
   }
 }
 
-@sealed @unmanaged
+@final @unmanaged
 export abstract class U32 {
 
   // @ts-ignore: decorator
@@ -179,13 +176,12 @@ export abstract class U32 {
     return <u32>strtol<i32>(value, radix);
   }
 
-  toString(this: u32): String {
-    // TODO: radix
-    return itoa(this);
+  toString(this: u32, radix: i32 = 10): String {
+    return utoa32(this, radix);
   }
 }
 
-@sealed @unmanaged
+@final @unmanaged
 export abstract class U64 {
 
   // @ts-ignore: decorator
@@ -200,13 +196,12 @@ export abstract class U64 {
     return <u64>strtol<i64>(value, radix);
   }
 
-  toString(this: u64): String {
-    // TODO: radix
-    return itoa(this);
+  toString(this: u64, radix: i32 = 10): String {
+    return utoa64(this, radix);
   }
 }
 
-@sealed @unmanaged
+@final @unmanaged
 export abstract class Usize {
 
   // @ts-ignore: decorator
@@ -221,13 +216,16 @@ export abstract class Usize {
     return <usize>strtol<i64>(value, radix);
   }
 
-  toString(this: usize): String {
-    // TODO: radix
-    return itoa(this);
+  toString(this: usize, radix: i32 = 10): String {
+    if (sizeof<usize>() == 4) {
+      return utoa32(<u32>this, radix);
+    } else {
+      return utoa64(<u64>this, radix);
+    }
   }
 }
 
-@sealed @unmanaged
+@final @unmanaged
 export abstract class Bool {
 
   // @ts-ignore: decorator
@@ -238,15 +236,14 @@ export abstract class Bool {
   @lazy
   static readonly MAX_VALUE: bool = bool.MAX_VALUE;
 
-  toString(this: bool): String {
-    // TODO: radix?
+  toString(this: bool, radix: i32 = 0): String {
     return this ? "true" : "false";
   }
 }
 
 export { Bool as Boolean };
 
-@sealed @unmanaged
+@final @unmanaged
 export abstract class F32 {
 
   // @ts-ignore: decorator
@@ -271,15 +268,15 @@ export abstract class F32 {
 
   // @ts-ignore: decorator
   @lazy
-  static readonly POSITIVE_INFINITY: f32 = Infinity;
+  static readonly POSITIVE_INFINITY: f32 = f32.POSITIVE_INFINITY;
 
   // @ts-ignore: decorator
   @lazy
-  static readonly NEGATIVE_INFINITY: f32 = -Infinity;
+  static readonly NEGATIVE_INFINITY: f32 = f32.NEGATIVE_INFINITY;
 
   // @ts-ignore: decorator
   @lazy
-  static readonly NaN: f32 = NaN;
+  static readonly NaN: f32 = f32.NaN;
 
   static isNaN(value: f32): bool {
     return isNaN<f32>(value);
@@ -298,20 +295,19 @@ export abstract class F32 {
   }
 
   static parseInt(value: string, radix: i32 = 0): f32 {
-    return <f32>strtol<i64>(value, radix);
+    return <f32>strtol<f64>(value, radix);
   }
 
   static parseFloat(value: string): f32 {
     return <f32>parseFloat(value);
   }
 
-  toString(this: f32): String {
-    // TODO: radix
+  toString(this: f32, radix: i32 = 0): String {
     return dtoa(this);
   }
 }
 
-@sealed @unmanaged
+@final @unmanaged
 export abstract class F64 {
 
   // @ts-ignore: decorator
@@ -336,15 +332,15 @@ export abstract class F64 {
 
   // @ts-ignore: decorator
   @lazy
-  static readonly POSITIVE_INFINITY: f64 = Infinity;
+  static readonly POSITIVE_INFINITY: f64 = f64.POSITIVE_INFINITY;
 
   // @ts-ignore: decorator
   @lazy
-  static readonly NEGATIVE_INFINITY: f64 = -Infinity;
+  static readonly NEGATIVE_INFINITY: f64 = f64.NEGATIVE_INFINITY;
 
   // @ts-ignore: decorator
   @lazy
-  static readonly NaN: f64 = NaN;
+  static readonly NaN: f64 = f64.NaN;
 
   static isNaN(value: f64): bool {
     return isNaN<f64>(value);
@@ -363,7 +359,7 @@ export abstract class F64 {
   }
 
   static parseInt(value: string, radix: i32 = 0): f64 {
-    return <f64>strtol<i64>(value, radix);
+    return strtol<f64>(value, radix);
   }
 
   static parseFloat(value: string): f64 {
@@ -371,7 +367,6 @@ export abstract class F64 {
   }
 
   toString(this: f64, radix: i32 = 0): String {
-    // TODO: radix
     return dtoa(this);
   }
 }

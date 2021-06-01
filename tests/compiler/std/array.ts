@@ -1,5 +1,11 @@
 import { Array } from "array";
+import { ArrayBufferView } from "arraybuffer";
 import { COMPARATOR } from "util/sort";
+
+// Array<T> has the same layout as ArrayBufferView
+assert(offsetof<ArrayBufferView>("buffer") == offsetof<i32[]>("buffer"));
+assert(offsetof<ArrayBufferView>("dataStart") == offsetof<i32[]>("dataStart"));
+assert(offsetof<ArrayBufferView>("byteLength") == offsetof<i32[]>("byteLength"));
 
 // Obtains the internal capacity of an array from its backing buffer.
 function internalCapacity<T>(array: Array<T>): i32 {
@@ -89,37 +95,37 @@ class Ref {
 
 {
   assert(arr.length == 0);
-  assert(internalCapacity<i32>(arr) == 0);
+  assert(internalCapacity<i32>(arr) == 8);
 
   arr.push(42);
 
   assert(arr[0] == 42);
   assert(arr.length == 1);
-  assert(internalCapacity<i32>(arr) == 1);
+  assert(internalCapacity<i32>(arr) == 8);
 
   let i = arr.pop();
 
   assert(i == 42);
   assert(arr.length == 0);
-  assert(internalCapacity<i32>(arr) == 1);
+  assert(internalCapacity<i32>(arr) == 8);
 
   arr.push(43);
 
   assert(arr.length == 1);
-  assert(internalCapacity<i32>(arr) == 1);
+  assert(internalCapacity<i32>(arr) == 8);
   assert(arr[0] == 43);
 
   arr.push(44);
 
   assert(arr.length == 2);
-  assert(internalCapacity<i32>(arr) == 2);
+  assert(internalCapacity<i32>(arr) == 8);
   assert(arr[0] == 43);
   assert(arr[1] == 44);
 
   arr.push(45);
 
   assert(arr.length == 3);
-  assert(internalCapacity<i32>(arr) == 3);
+  assert(internalCapacity<i32>(arr) == 8);
   assert(arr[0] == 43);
   assert(arr[1] == 44);
   assert(arr[2] == 45);
@@ -133,18 +139,29 @@ class Ref {
   assert(arr.length == 0);
 }
 
+// Array#at ///////////////////////////////////////////////////////////////////////////////////////
+
+{
+  let arr: i32[] = [1, 2, 3, 4];
+
+  assert(arr.at(0) == 1);
+  assert(arr.at(3) == 4);
+  assert(arr.at(-1) == 4);
+  assert(arr.at(-4) == 1);
+}
+
 // Array#concat ///////////////////////////////////////////////////////////////////////////////////
 
 {
   let other = new Array<i32>();
 
   let out = arr.concat(other);
-  assert(internalCapacity<i32>(arr) == 3);
+  assert(internalCapacity<i32>(arr) == 8);
   assert(arr.length == 3);
   assert(out.length == 3);
 
   out.concat([]);
-  assert(internalCapacity<i32>(arr) == 3);
+  assert(internalCapacity<i32>(arr) == 8);
 
   assert(out[0] == 43);
   assert(out[1] == 44);
@@ -155,7 +172,7 @@ class Ref {
 
   out = arr.concat(other);
 
-  assert(internalCapacity<i32>(arr) == 3);
+  assert(internalCapacity<i32>(arr) == 8);
   assert(other.length == 2);
   assert(out.length == 5);
   assert(out[0] == 43);
@@ -214,7 +231,7 @@ class Ref {
   arr.unshift(42);
 
   assert(arr.length == 4);
-  assert(internalCapacity<i32>(arr) == 4);
+  assert(internalCapacity<i32>(arr) == 8);
   assert(arr[0] == 42);
   assert(arr[1] == 43);
   assert(arr[2] == 44);
@@ -223,7 +240,7 @@ class Ref {
   arr.unshift(41);
 
   assert(arr.length == 5);
-  assert(internalCapacity<i32>(arr) == 5);
+  assert(internalCapacity<i32>(arr) == 8);
   assert(arr[0] == 41);
   assert(arr[1] == 42);
   assert(arr[2] == 43);
@@ -239,7 +256,7 @@ var i: i32;
 
   assert(i == 41);
   assert(arr.length == 4);
-  assert(internalCapacity<i32>(arr) == 5);
+  assert(internalCapacity<i32>(arr) == 8);
   assert(arr[0] == 42);
   assert(arr[1] == 43);
   assert(arr[2] == 44);
@@ -249,10 +266,41 @@ var i: i32;
 
   assert(i == 45);
   assert(arr.length == 3);
-  assert(internalCapacity<i32>(arr) == 5);
+  assert(internalCapacity<i32>(arr) == 8);
   assert(arr[0] == 42);
   assert(arr[1] == 43);
   assert(arr[2] == 44);
+}
+
+// Array#slice
+
+{
+  let result: i32[];
+  const elements: i32[] = [3, 5, 7, 9, 11];
+
+  result = elements.slice(2);
+  assert(isArraysEqual(result, [7, 9, 11]));
+
+  result = elements.slice(2, 4);
+  assert(isArraysEqual(result, [7, 9]));
+
+  result = elements.slice(1, 5);
+  assert(isArraysEqual(result, [5, 7, 9, 11]));
+
+  result = elements.slice();
+  assert(isArraysEqual(result, elements));
+
+  result = elements.slice(-2);
+  assert(isArraysEqual(result, [9, 11]));
+
+  result = elements.slice(2, -1);
+  assert(isArraysEqual(result, [7, 9]));
+
+  result = elements.slice(-3, -1);
+  assert(isArraysEqual(result, [7, 9]));
+
+  assert(elements.slice(-1, -3).length == 0);
+  assert(elements.slice(10).length == 0);
 }
 
 // Array#reverse ///////////////////////////////////////////////////////////////////////////////////
@@ -261,7 +309,7 @@ var i: i32;
   arr.reverse();
 
   assert(arr.length == 3);
-  assert(internalCapacity<i32>(arr) == 5);
+  assert(internalCapacity<i32>(arr) == 8);
   assert(arr[0] == 44);
   assert(arr[1] == 43);
   assert(arr[2] == 42);
@@ -307,6 +355,19 @@ var i: i32;
   assert(([NaN] as f64[]).indexOf(NaN) == -1);
 }
 
+// Array#lastIndexOf
+
+{
+  const numbers: i32[] = [2, 5, 9, 2];
+  assert(numbers.lastIndexOf(2) == 3);
+  assert(numbers.lastIndexOf(7) == -1);
+  assert(numbers.lastIndexOf(2, 3) == 3);
+  assert(numbers.lastIndexOf(2, 2) == 0);
+  assert(numbers.lastIndexOf(2, -2) == 0);
+  assert(numbers.lastIndexOf(2, -1) == 3);
+
+}
+
 // Array#includes //////////////////////////////////////////////////////////////////////////////////
 
 {
@@ -346,7 +407,7 @@ var i: i32;
   arr.splice(1, 1);
 
   assert(arr.length == 4);
-  assert(internalCapacity<i32>(arr) == 5);
+  assert(internalCapacity<i32>(arr) == 8);
   assert(arr[0] == 44);
   assert(arr[1] == 42);
 }
@@ -410,8 +471,8 @@ var i: i32;
   assert(isArraysEqual<i32>(sarr.splice(7, 5), []));
   assert(isArraysEqual<i32>(sarr, [1, 2, 3, 4, 5]));
 
-  var refArr: Ref[] = [];
-  var spliced = refArr.splice(1, 2);
+  let refArr: Ref[] = [];
+  let spliced = refArr.splice(1, 2);
   assert(spliced.length == 0);
   assert(refArr.length == 0);
 
@@ -427,8 +488,8 @@ var i: i32;
   assert(refArr[1].v == 2);
   assert(refArr[2].v == 5);
 
-  var refArr2: (Ref | null)[] = [new Ref(1), null, new Ref(2)];
-  var spliced2 = refArr2.splice(0, 1);
+  let refArr2: (Ref | null)[] = [new Ref(1), null, new Ref(2)];
+  let spliced2 = refArr2.splice(0, 1);
 
   assert(spliced2.length == 1);
   assert(spliced2[0]!.v == 1);
@@ -512,7 +573,7 @@ var i: i32;
 
   // Test side effect pop
   every = arr.every((value: i32, _: i32, array: Array<i32>) => {
-    array.pop(); //poped items shouldn't be looked up, and we shouldn't go out of bounds
+    array.pop(); // popped items shouldn't be looked up, and we shouldn't go out of bounds
     return value < 3;
   });
   // only 2 first items was looked up, since last 2 was removed by .pop()
@@ -550,7 +611,7 @@ var i: i32;
 
   // Test side effect pop
   some = arr.some((value: i32, _: i32, array: Array<i32>) => {
-    array.pop(); // poped items shouldn't be looked up, and we shouldn't go out of bounds
+    array.pop(); // popped items shouldn't be looked up, and we shouldn't go out of bounds
     return value > 3;
   });
   // only 2 first items was looked up, since last 2 was removed by .pop()
@@ -571,7 +632,7 @@ var i: i32;
   // Test side effect push
   i = 0;
   arr.forEach((value: i32, _: i32, array: Array<i32>) => {
-    array.push(100); //push side effect should not affect this method by spec
+    array.push(100); // push side effect should not affect this method by spec
     i += value;
   });
   // array should be changed, but this method result should be calculated for old array length
@@ -589,7 +650,7 @@ var i: i32;
   // Test side effect pop
   i = 0;
   arr.forEach((value: i32, _: i32, array: Array<i32>) => {
-    array.pop(); //poped items shouldn't be looked up, and we shouldn't go out of bounds
+    array.pop(); // popped items shouldn't be looked up, and we shouldn't go out of bounds
     i += value;
   });
   // only 2 first items was looked up, since last 2 was removed by .pop()
@@ -639,7 +700,7 @@ var i: i32;
   // Test side effect push
   i = 0;
   arr.map<i32>((value: i32, _: i32, array: Array<i32>) => {
-    array.push(100); //push side effect should not affect this method by spec
+    array.push(100); // push side effect should not affect this method by spec
     i += value;
     return value;
   });
@@ -661,7 +722,7 @@ var i: i32;
   // Test side effect pop
   i = 0;
   arr.map<i32>((value: i32, _: i32, array: Array<i32>) => {
-    array.pop(); //poped items shouldn't be looked up, and we shouldn't go out of bounds
+    array.pop(); // popped items shouldn't be looked up, and we shouldn't go out of bounds
     i += value;
     return value;
   });
@@ -682,7 +743,7 @@ var i: i32;
   // Test side effect push
   i = 0;
   arr.filter((value: i32, _: i32, array: Array<i32>) => {
-    array.push(100); //push side effect should not affect this method by spec
+    array.push(100); // push side effect should not affect this method by spec
     i += value;
     return value >= 2;
   });
@@ -704,7 +765,7 @@ var i: i32;
   // Test side effect pop
   i = 0;
   arr.filter((value: i32, _: i32, array: Array<i32>) => {
-    array.pop(); //poped items shouldn't be looked up, and we shouldn't go out of bounds
+    array.pop(); // popped items shouldn't be looked up, and we shouldn't go out of bounds
     i += value;
     return value >= 2;
   });
@@ -750,7 +811,7 @@ var i: i32;
 
   // Test side effect pop
   i = arr.reduce(((prev: i32, current: i32, _: i32, array: Array<i32>): i32 => {
-    array.pop(); //poped items shouldn't be reduced, and we shouldn't go out of bounds
+    array.pop(); // popped items shouldn't be reduced, and we shouldn't go out of bounds
     return prev + current;
   }), 0);
   // only 2 first items was reduced, since last 2 was removed by .pop()
@@ -795,7 +856,7 @@ var i: i32;
 
   // Test side effect pop
   i = arr.reduceRight(((prev: i32, current: i32, _: i32, array: Array<i32>): i32 => {
-    array.pop(); // poped items should be reduced
+    array.pop(); // popped items should be reduced
     return prev + current;
   }), 0);
 
@@ -1020,15 +1081,47 @@ function assertSortedDefault<T>(arr: Array<T>): void {
   assert(arrStr.toString() == ",a,a,ab,b,ba,");
   assert((<Array<string | null>>["1", "2", null, "4"]).toString() == "1,2,,4");
 
-  var subarr32: i32[][] = [[1,2], [3,4]];
+  let subarr32: i32[][] = [[1,2], [3,4]];
   assert(subarr32.toString() == "1,2,3,4");
 
-  var subarr8: u8[][] = [[1,2], [3,4]];
+  let subarr8: u8[][] = [[1,2], [3,4]];
   assert(subarr8.toString() == "1,2,3,4");
 
-  var subarrU32: u32[][][] = [[[1]]];
+  let subarrU32: u32[][][] = [[[1]]];
   assert(subarrU32.toString() == "1");
 }
 
+// Array#flat //////////////////////////////////////////////////////////////////////////////////
+{
+  let flatTarget: i32[][] = [[0], [1, 2, 3], [4, 5, 6], [7, 8, 9]];
+  let result = flatTarget.flat();
+  assert(result.length == 10);
+  for (let i = 0; i < 10; i++) {
+    assert(result[i] == i);
+  }
+
+  let flatStringTarget: Array<Array<string | null>> = [["one"], ["two", null, "three"], ["four", "five", "six"], ["seven"]];
+  let stringResult = flatStringTarget.flat();
+  let expected = ["one", "two", null, "three", "four", "five", "six", "seven"];
+  assert(stringResult.length == 8);
+  for (let i = 0; i < expected.length; i++) {
+    assert(stringResult[i] == expected[i]);
+  }
+
+  let testArray: i32[][] = [[], []];
+  assert(testArray.flat().length == 0);
+}
+
+// export extended arrays
+
+export class ArrayU32 extends Array<u32> {}
+export class ArrayU8 extends Array<u8> {}
+export class ArrayStr extends Array<string> {}
+// FIXME: Fails on 'sort' due to operators '>', '<'
+// export class ArrayArrayI32 extends Array<Array<i32>> {}
+
 // Unleak globals
-__release(changetype<usize>(arr));
+arr = changetype<Array<i32>>(0);
+
+__stack_pointer = __heap_base;
+__collect();

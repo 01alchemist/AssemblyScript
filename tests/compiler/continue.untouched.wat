@@ -1,10 +1,14 @@
 (module
  (type $i32_=>_none (func (param i32)))
+ (global $~lib/memory/__data_end i32 (i32.const 8))
+ (global $~lib/memory/__stack_pointer (mut i32) (i32.const 16392))
+ (global $~lib/memory/__heap_base i32 (i32.const 16392))
  (memory $0 0)
  (table $0 1 funcref)
- (export "memory" (memory $0))
+ (elem $0 (i32.const 1))
  (export "testInherit" (func $continue/testInherit))
- (func $continue/testInherit (; 0 ;) (param $0 i32)
+ (export "memory" (memory $0))
+ (func $continue/testInherit (param $0 i32)
   (local $1 i32)
   (local $2 i32)
   i32.const 0

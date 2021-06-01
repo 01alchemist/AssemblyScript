@@ -108,7 +108,7 @@ declare function isDefined(expression: any): bool;
 /** Tests if the specified expression evaluates to a constant value. */
 declare function isConstant(expression: any): bool;
 /** Traps if the specified value is not true-ish, otherwise returns the value. */
-declare function assert<T>(isTrueish: T | null, message?: string): T;
+declare function assert<T>(isTrueish: T, message?: string): T & (object | string | number); // any better way to model `: T != null`?
 /** Parses an integer string to a 64-bit float. */
 declare function parseInt(str: string, radix?: i32): f64;
 /** Parses a floating point string to a 64-bit float. */
@@ -230,11 +230,18 @@ declare namespace f32 {
   /** Largest representable value. */
   export const MAX_VALUE: f32;
   /** Smallest normalized positive value. */
-  export const MIN_POSITIVE_VALUE: f32;
+  export const MIN_NORMAL_VALUE: f32;
   /** Smallest safely representable integer value. */
   export const MIN_SAFE_INTEGER: f32;
   /** Largest safely representable integer value. */
   export const MAX_SAFE_INTEGER: f32;
+  /** Positive infinity value. */
+  export const POSITIVE_INFINITY: f32;
+  /** Negative infinity value. */
+  export const NEGATIVE_INFINITY: f32;
+  /** Not a number value. */
+  /* eslint no-shadow-restricted-names: "off" */
+  export const NaN: f32;
   /** Difference between 1 and the smallest representable value greater than 1. */
   export const EPSILON: f32;
   /** Returns a boolean value that indicates whether a value is the reserved value NaN (not a number). */
@@ -258,11 +265,18 @@ declare namespace f64 {
   /** Largest representable value. */
   export const MAX_VALUE: f64;
   /** Smallest normalized positive value. */
-  export const MIN_POSITIVE_VALUE: f64;
+  export const MIN_NORMAL_VALUE: f64;
   /** Smallest safely representable integer value. */
   export const MIN_SAFE_INTEGER: f64;
   /** Largest safely representable integer value. */
   export const MAX_SAFE_INTEGER: f64;
+  /** Positive infinity value. */
+  export const POSITIVE_INFINITY: f64;
+  /** Negative infinity value. */
+  export const NEGATIVE_INFINITY: f64;
+  /** Not a number value. */
+  /* eslint no-shadow-restricted-names: "off" */
+  export const NaN: f64;
   /** Difference between 1 and the smallest representable value greater than 1. */
   export const EPSILON: f64;
   /** Returns a boolean value that indicates whether a value is the reserved value NaN (not a number). */
@@ -300,3 +314,55 @@ declare interface StringConstructor {
 
 /** Annotates a class as being unmanaged with limited capabilities. */
 declare function unmanaged(constructor: Function): void;
+
+/** Environmental tracing function. */
+declare function trace(msg: string, n?: i32, a0?: f64, a1?: f64, a2?: f64, a3?: f64, a4?: f64): void;
+
+declare interface Int8ArrayConstructor {
+  /** Equivalent to calling `new Int8Array` with multiple arguments. */
+  wrap(buffer: ArrayBuffer, byteOffset?: i32, length?: i32): Int8Array;
+}
+
+declare interface Uint8ArrayConstructor {
+  /** Equivalent to calling `new Uint8Array` with multiple arguments. */
+  wrap(buffer: ArrayBuffer, byteOffset?: i32, length?: i32): Uint8Array;
+}
+
+declare interface Uint8ClampedArrayConstructor {
+  /** Equivalent to calling `new Uint8ClampedArray` with multiple arguments. */
+  wrap(buffer: ArrayBuffer, byteOffset?: i32, length?: i32): Uint8ClampedArray;
+}
+
+declare interface Int16ArrayConstructor {
+  /** Equivalent to calling `new Int16Array` with multiple arguments. */
+  wrap(buffer: ArrayBuffer, byteOffset?: i32, length?: i32): Int16Array;
+}
+
+declare interface Uint16ArrayConstructor {
+  /** Equivalent to calling `new Uint16Array` with multiple arguments. */
+  wrap(buffer: ArrayBuffer, byteOffset?: i32, length?: i32): Uint16Array;
+}
+
+declare interface Int32ArrayConstructor {
+  /** Equivalent to calling `new Int32Array` with multiple arguments. */
+  wrap(buffer: ArrayBuffer, byteOffset?: i32, length?: i32): Int32Array;
+}
+
+declare interface Uint32ArrayConstructor {
+  /** Equivalent to calling `new Uint32Array` with multiple arguments. */
+  wrap(buffer: ArrayBuffer, byteOffset?: i32, length?: i32): Uint32Array;
+}
+
+declare interface Float32ArrayConstructor {
+  /** Equivalent to calling `new Float32Array` with multiple arguments. */
+  wrap(buffer: ArrayBuffer, byteOffset?: i32, length?: i32): Float32Array;
+}
+
+declare interface Float64ArrayConstructor {
+  /** Equivalent to calling `new Float64Array` with multiple arguments. */
+  wrap(buffer: ArrayBuffer, byteOffset?: i32, length?: i32): Float64Array;
+}
+
+// FIXME: remove
+declare function offsetof<T>(fieldName?: string): usize;
+declare function idof<T>(): u32;

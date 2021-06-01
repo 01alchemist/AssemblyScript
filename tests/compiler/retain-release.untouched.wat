@@ -7,8 +7,8 @@
  (type $i32_i32_=>_i32 (func (param i32 i32) (result i32)))
  (import "env" "abort" (func $~lib/builtins/abort (param i32 i32 i32 i32)))
  (memory $0 1)
- (data (i32.const 16) "\n\00\00\00\01\00\00\00\01\00\00\00\n\00\00\00e\00r\00r\00o\00r\00")
- (data (i32.const 48) "\"\00\00\00\01\00\00\00\01\00\00\00\"\00\00\00r\00e\00t\00a\00i\00n\00-\00r\00e\00l\00e\00a\00s\00e\00.\00t\00s\00")
+ (data (i32.const 12) "\1c\00\00\00\01\00\00\00\00\00\00\00\01\00\00\00\n\00\00\00e\00r\00r\00o\00r\00\00\00")
+ (data (i32.const 44) "<\00\00\00\01\00\00\00\00\00\00\00\01\00\00\00\"\00\00\00r\00e\00t\00a\00i\00n\00-\00r\00e\00l\00e\00a\00s\00e\00.\00t\00s\00\00\00\00\00\00\00\00\00\00\00")
  (table $0 1 funcref)
  (global $~lib/rt/stub/startOffset (mut i32) (i32.const 0))
  (global $~lib/rt/stub/offset (mut i32) (i32.const 0))
@@ -17,8 +17,7 @@
  (global $retain-release/TARGET (mut i32) (i32.const 0))
  (global $~argumentsLength (mut i32) (i32.const 0))
  (global $~started (mut i32) (i32.const 0))
- (global $~lib/heap/__heap_base i32 (i32.const 100))
- (export "__setArgumentsLength" (func $~setArgumentsLength))
+ (global $~lib/memory/__heap_base i32 (i32.const 108))
  (export "_start" (func $~start))
  (export "memory" (memory $0))
  (export "returnRef" (func $retain-release/returnRef))
@@ -58,7 +57,20 @@
  (export "provideRefIndirect" (func $retain-release/provideRefIndirect))
  (export "receiveRefIndirect" (func $retain-release/receiveRefIndirect))
  (export "receiveRefIndirectDrop" (func $retain-release/receiveRefIndirectDrop))
- (func $~lib/rt/stub/maybeGrowMemory (; 1 ;) (param $0 i32)
+ (func $~lib/rt/stub/computeSize (param $0 i32) (result i32)
+  local.get $0
+  i32.const 4
+  i32.add
+  i32.const 15
+  i32.add
+  i32.const 15
+  i32.const -1
+  i32.xor
+  i32.and
+  i32.const 4
+  i32.sub
+ )
+ (func $~lib/rt/stub/maybeGrowMemory (param $0 i32)
   (local $1 i32)
   (local $2 i32)
   (local $3 i32)
@@ -69,6 +81,12 @@
   local.get $1
   i32.const 16
   i32.shl
+  i32.const 15
+  i32.add
+  i32.const 15
+  i32.const -1
+  i32.xor
+  i32.and
   local.set $2
   local.get $0
   local.get $2
@@ -112,81 +130,90 @@
   local.get $0
   global.set $~lib/rt/stub/offset
  )
- (func $~lib/rt/stub/__alloc (; 2 ;) (param $0 i32) (param $1 i32) (result i32)
+ (func $~lib/rt/stub/__alloc (param $0 i32) (result i32)
+  (local $1 i32)
   (local $2 i32)
   (local $3 i32)
-  (local $4 i32)
-  (local $5 i32)
-  (local $6 i32)
   local.get $0
-  i32.const 1073741808
+  i32.const 1073741820
   i32.gt_u
   if
    unreachable
   end
   global.get $~lib/rt/stub/offset
-  i32.const 16
+  local.set $1
+  global.get $~lib/rt/stub/offset
+  i32.const 4
   i32.add
   local.set $2
   local.get $0
-  i32.const 15
-  i32.add
-  i32.const 15
-  i32.const -1
-  i32.xor
-  i32.and
-  local.tee $3
-  i32.const 16
-  local.tee $4
-  local.get $3
-  local.get $4
-  i32.gt_u
-  select
-  local.set $5
+  call $~lib/rt/stub/computeSize
+  local.set $3
   local.get $2
-  local.get $5
+  local.get $3
   i32.add
   call $~lib/rt/stub/maybeGrowMemory
+  local.get $1
+  local.get $3
+  i32.store
+  local.get $2
+ )
+ (func $~lib/rt/stub/__new (param $0 i32) (param $1 i32) (result i32)
+  (local $2 i32)
+  (local $3 i32)
+  local.get $0
+  i32.const 1073741804
+  i32.gt_u
+  if
+   unreachable
+  end
+  i32.const 16
+  local.get $0
+  i32.add
+  call $~lib/rt/stub/__alloc
+  local.set $2
+  local.get $2
+  i32.const 4
+  i32.sub
+  local.set $3
+  local.get $3
+  i32.const 0
+  i32.store offset=4
+  local.get $3
+  i32.const 0
+  i32.store offset=8
+  local.get $3
+  local.get $1
+  i32.store offset=12
+  local.get $3
+  local.get $0
+  i32.store offset=16
   local.get $2
   i32.const 16
-  i32.sub
-  local.set $6
-  local.get $6
-  local.get $5
-  i32.store
-  local.get $6
-  i32.const 1
-  i32.store offset=4
-  local.get $6
-  local.get $1
-  i32.store offset=8
-  local.get $6
-  local.get $0
-  i32.store offset=12
-  local.get $2
+  i32.add
  )
- (func $~lib/rt/stub/__retain (; 3 ;) (param $0 i32) (result i32)
+ (func $~lib/rt/stub/__retain (param $0 i32) (result i32)
   local.get $0
  )
- (func $retain-release/Ref#constructor (; 4 ;) (param $0 i32) (result i32)
+ (func $retain-release/Ref#constructor (param $0 i32) (result i32)
   local.get $0
   i32.eqz
   if
    i32.const 0
    i32.const 3
-   call $~lib/rt/stub/__alloc
+   call $~lib/rt/stub/__new
    call $~lib/rt/stub/__retain
    local.set $0
   end
   local.get $0
  )
- (func $retain-release/Target#constructor (; 5 ;) (param $0 i32) (result i32)
+ (func $retain-release/Target#constructor (param $0 i32) (result i32)
   local.get $0
   i32.eqz
   if
    i32.const 4
    i32.const 4
-   call $~lib/rt/stub/__alloc
+   call $~lib/rt/stub/__new
    call $~lib/rt/stub/__retain
    local.set $0
   end
@@ -195,14 +222,18 @@
   i32.store
   local.get $0
  )
- (func $start:retain-release (; 6 ;)
-  global.get $~lib/heap/__heap_base
+ (func $start:retain-release
+  global.get $~lib/memory/__heap_base
+  i32.const 4
+  i32.add
   i32.const 15
   i32.add
   i32.const 15
   i32.const -1
   i32.xor
   i32.and
+  i32.const 4
+  i32.sub
   global.set $~lib/rt/stub/startOffset
   global.get $~lib/rt/stub/startOffset
   global.set $~lib/rt/stub/offset
@@ -213,14 +244,14 @@
   call $retain-release/Target#constructor
   global.set $retain-release/TARGET
  )
- (func $retain-release/returnRef (; 7 ;) (result i32)
+ (func $retain-release/returnRef (result i32)
   global.get $retain-release/REF
   call $~lib/rt/stub/__retain
  )
- (func $~lib/rt/stub/__release (; 8 ;) (param $0 i32)
+ (func $~lib/rt/stub/__release (param $0 i32)
   nop
  )
- (func $retain-release/receiveRef (; 9 ;)
+ (func $retain-release/receiveRef
   (local $0 i32)
   call $retain-release/returnRef
   local.tee $0
@@ -229,35 +260,35 @@
   local.get $0
   call $~lib/rt/stub/__release
  )
- (func $retain-release/receiveRefDrop (; 10 ;)
+ (func $retain-release/receiveRefDrop
   call $retain-release/returnRef
   call $~lib/rt/stub/__release
  )
- (func $retain-release/receiveRefRetain (; 11 ;)
+ (func $retain-release/receiveRefRetain
   (local $0 i32)
   call $retain-release/returnRef
   local.set $0
   local.get $0
   call $~lib/rt/stub/__release
  )
- (func $retain-release/takeRef (; 12 ;) (param $0 i32)
+ (func $retain-release/takeRef (param $0 i32)
   local.get $0
   call $~lib/rt/stub/__retain
   local.set $0
   local.get $0
   call $~lib/rt/stub/__release
  )
- (func $retain-release/provideRef (; 13 ;)
+ (func $retain-release/provideRef
   global.get $retain-release/REF
   call $retain-release/takeRef
  )
- (func $retain-release/takeReturnRef (; 14 ;) (param $0 i32) (result i32)
+ (func $retain-release/takeReturnRef (param $0 i32) (result i32)
   local.get $0
   call $~lib/rt/stub/__retain
   local.set $0
   local.get $0
  )
- (func $retain-release/provideReceiveRef (; 15 ;)
+ (func $retain-release/provideReceiveRef
   (local $0 i32)
   global.get $retain-release/REF
   call $retain-release/takeReturnRef
@@ -267,12 +298,12 @@
   local.get $0
   call $~lib/rt/stub/__release
  )
- (func $retain-release/newRef (; 16 ;)
+ (func $retain-release/newRef
   i32.const 0
   call $retain-release/Ref#constructor
   call $~lib/rt/stub/__release
  )
- (func $retain-release/assignGlobal (; 17 ;)
+ (func $retain-release/assignGlobal
   (local $0 i32)
   (local $1 i32)
   global.get $retain-release/REF
@@ -290,7 +321,7 @@
   local.get $0
   global.set $retain-release/glo
  )
- (func $retain-release/assignField (; 18 ;)
+ (func $retain-release/assignField
   (local $0 i32)
   (local $1 i32)
   (local $2 i32)
@@ -312,7 +343,7 @@
   local.get $1
   i32.store
  )
- (func $retain-release/scopeBlock (; 19 ;)
+ (func $retain-release/scopeBlock
   (local $0 i32)
   global.get $retain-release/REF
   call $~lib/rt/stub/__retain
@@ -320,7 +351,7 @@
   local.get $0
   call $~lib/rt/stub/__release
  )
- (func $retain-release/scopeBlockToUninitialized (; 20 ;)
+ (func $retain-release/scopeBlockToUninitialized
   (local $0 i32)
   (local $1 i32)
   (local $2 i32)
@@ -349,7 +380,7 @@
   local.get $0
   call $~lib/rt/stub/__release
  )
- (func $retain-release/scopeBlockToInitialized (; 21 ;)
+ (func $retain-release/scopeBlockToInitialized
   (local $0 i32)
   (local $1 i32)
   (local $2 i32)
@@ -379,7 +410,7 @@
   local.get $0
   call $~lib/rt/stub/__release
  )
- (func $retain-release/scopeBlockToConditional (; 22 ;) (param $0 i32)
+ (func $retain-release/scopeBlockToConditional (param $0 i32)
   (local $1 i32)
   (local $2 i32)
   (local $3 i32)
@@ -425,14 +456,14 @@
   local.get $1
   call $~lib/rt/stub/__release
  )
- (func $retain-release/scopeTopLevelUninitialized (; 23 ;)
+ (func $retain-release/scopeTopLevelUninitialized
   (local $0 i32)
   i32.const 0
   local.set $0
   local.get $0
   call $~lib/rt/stub/__release
  )
- (func $retain-release/scopeTopLevelInitialized (; 24 ;)
+ (func $retain-release/scopeTopLevelInitialized
   (local $0 i32)
   global.get $retain-release/REF
   call $~lib/rt/stub/__retain
@@ -440,7 +471,7 @@
   local.get $0
   call $~lib/rt/stub/__release
  )
- (func $retain-release/scopeTopLevelConditional (; 25 ;) (param $0 i32)
+ (func $retain-release/scopeTopLevelConditional (param $0 i32)
   (local $1 i32)
   (local $2 i32)
   (local $3 i32)
@@ -466,7 +497,7 @@
   local.get $1
   call $~lib/rt/stub/__release
  )
- (func $retain-release/scopeIf (; 26 ;) (param $0 i32)
+ (func $retain-release/scopeIf (param $0 i32)
   (local $1 i32)
   local.get $0
   if
@@ -477,7 +508,7 @@
    call $~lib/rt/stub/__release
   end
  )
- (func $retain-release/scopeIfElse (; 27 ;) (param $0 i32)
+ (func $retain-release/scopeIfElse (param $0 i32)
   (local $1 i32)
   local.get $0
   if
@@ -494,7 +525,7 @@
    call $~lib/rt/stub/__release
   end
  )
- (func $retain-release/scopeWhile (; 28 ;) (param $0 i32)
+ (func $retain-release/scopeWhile (param $0 i32)
   (local $1 i32)
   (local $2 i32)
   loop $while-continue|0
@@ -511,7 +542,7 @@
    end
   end
  )
- (func $retain-release/scopeDo (; 29 ;) (param $0 i32)
+ (func $retain-release/scopeDo (param $0 i32)
   (local $1 i32)
   (local $2 i32)
   loop $do-continue|0
@@ -526,7 +557,7 @@
    br_if $do-continue|0
   end
  )
- (func $retain-release/scopeFor (; 30 ;) (param $0 i32)
+ (func $retain-release/scopeFor (param $0 i32)
   (local $1 i32)
   (local $2 i32)
   loop $for-loop|0
@@ -543,7 +574,7 @@
    end
   end
  )
- (func $retain-release/scopeForComplex (; 31 ;) (param $0 i32)
+ (func $retain-release/scopeForComplex (param $0 i32)
   (local $1 i32)
   (local $2 i32)
   (local $3 i32)
@@ -603,7 +634,7 @@
    end
   end
  )
- (func $retain-release/scopeBreak (; 32 ;) (param $0 i32)
+ (func $retain-release/scopeBreak (param $0 i32)
   (local $1 i32)
   (local $2 i32)
   block $while-break|0
@@ -622,7 +653,7 @@
    end
   end
  )
- (func $retain-release/scopeBreakNested (; 33 ;) (param $0 i32)
+ (func $retain-release/scopeBreakNested (param $0 i32)
   (local $1 i32)
   (local $2 i32)
   (local $3 i32)
@@ -656,7 +687,7 @@
    end
   end
  )
- (func $retain-release/scopeContinue (; 34 ;) (param $0 i32)
+ (func $retain-release/scopeContinue (param $0 i32)
   (local $1 i32)
   (local $2 i32)
   loop $while-continue|0
@@ -673,7 +704,7 @@
    end
   end
  )
- (func $retain-release/scopeContinueNested (; 35 ;) (param $0 i32)
+ (func $retain-release/scopeContinueNested (param $0 i32)
   (local $1 i32)
   (local $2 i32)
   (local $3 i32)
@@ -705,7 +736,7 @@
    end
   end
  )
- (func $retain-release/scopeThrow (; 36 ;) (param $0 i32)
+ (func $retain-release/scopeThrow (param $0 i32)
   (local $1 i32)
   (local $2 i32)
   loop $while-continue|0
@@ -716,18 +747,16 @@
     global.get $retain-release/REF
     call $~lib/rt/stub/__retain
     local.set $2
-    local.get $2
-    call $~lib/rt/stub/__release
     i32.const 32
     i32.const 64
     i32.const 367
-    i32.const 4
+    i32.const 5
     call $~lib/builtins/abort
     unreachable
    end
   end
  )
- (func $retain-release/scopeUnreachable (; 37 ;) (param $0 i32)
+ (func $retain-release/scopeUnreachable (param $0 i32)
   (local $1 i32)
   (local $2 i32)
   loop $while-continue|0
@@ -742,7 +771,7 @@
    end
   end
  )
- (func $retain-release/callInline (; 38 ;)
+ (func $retain-release/callInline
   (local $0 i32)
   global.get $retain-release/REF
   call $~lib/rt/stub/__retain
@@ -750,7 +779,7 @@
   local.get $0
   call $~lib/rt/stub/__release
  )
- (func $retain-release/provideRefInline (; 39 ;)
+ (func $retain-release/provideRefInline
   (local $0 i32)
   global.get $retain-release/REF
   call $~lib/rt/stub/__retain
@@ -758,7 +787,7 @@
   local.get $0
   call $~lib/rt/stub/__release
  )
- (func $retain-release/receiveRefInline (; 40 ;)
+ (func $retain-release/receiveRefInline
   (local $0 i32)
   global.get $retain-release/REF
   call $~lib/rt/stub/__retain
@@ -768,49 +797,62 @@
   local.get $0
   call $~lib/rt/stub/__release
  )
- (func $retain-release/receiveRefInlineDrop (; 41 ;)
+ (func $retain-release/receiveRefInlineDrop
   global.get $retain-release/REF
   call $~lib/rt/stub/__retain
   call $~lib/rt/stub/__release
  )
- (func $~setArgumentsLength (; 42 ;) (param $0 i32)
+ (func $retain-release/provideRefIndirect (param $0 i32)
   local.get $0
-  global.set $~argumentsLength
- )
- (func $retain-release/provideRefIndirect (; 43 ;) (param $0 i32)
+  call $~lib/rt/stub/__retain
+  local.set $0
+  global.get $retain-release/REF
   i32.const 1
   global.set $~argumentsLength
-  global.get $retain-release/REF
   local.get $0
+  i32.load
   call_indirect (type $i32_=>_none)
+  local.get $0
+  call $~lib/rt/stub/__release
  )
- (func $retain-release/receiveRefIndirect (; 44 ;) (param $0 i32)
+ (func $retain-release/receiveRefIndirect (param $0 i32)
   (local $1 i32)
+  local.get $0
+  call $~lib/rt/stub/__retain
+  local.set $0
   i32.const 0
   global.set $~argumentsLength
   local.get $0
+  i32.load
   call_indirect (type $none_=>_i32)
   local.tee $1
   i32.eqz
   drop
   local.get $1
   call $~lib/rt/stub/__release
+  local.get $0
+  call $~lib/rt/stub/__release
  )
- (func $retain-release/receiveRefIndirectDrop (; 45 ;) (param $0 i32)
+ (func $retain-release/receiveRefIndirectDrop (param $0 i32)
+  local.get $0
+  call $~lib/rt/stub/__retain
+  local.set $0
   i32.const 0
   global.set $~argumentsLength
   local.get $0
+  i32.load
   call_indirect (type $none_=>_i32)
   call $~lib/rt/stub/__release
+  local.get $0
+  call $~lib/rt/stub/__release
  )
- (func $~start (; 46 ;)
+ (func $~start
   global.get $~started
   if
    return
-  else
-   i32.const 1
-   global.set $~started
   end
+  i32.const 1
+  global.set $~started
   call $start:retain-release
  )
 )

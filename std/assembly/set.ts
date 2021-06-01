@@ -5,24 +5,19 @@ import { HASH } from "./util/hash";
 // A deterministic hash set based on CloseTable from https://github.com/jorendorff/dht
 
 // @ts-ignore: decorator
-@inline
-const INITIAL_CAPACITY = 4;
+@inline const INITIAL_CAPACITY = 4;
 
 // @ts-ignore: decorator
-@inline
-const FILL_FACTOR_N = 8;
+@inline const FILL_FACTOR_N = 8;
 
 // @ts-ignore: decorator
-@inline
-const FILL_FACTOR_D = 3;
+@inline const FILL_FACTOR_D = 3;
 
 // @ts-ignore: decorator
-@inline
-const FREE_FACTOR_N = 3;
+@inline const FREE_FACTOR_N = 3;
 
 // @ts-ignore: decorator
-@inline
-const FREE_FACTOR_D = 4;
+@inline const FREE_FACTOR_D = 4;
 
 /** Structure of a set entry. */
 @unmanaged class SetEntry<K> {
@@ -32,13 +27,11 @@ const FREE_FACTOR_D = 4;
 
 /** Empty bit. */
 // @ts-ignore: decorator
-@inline
-const EMPTY: usize = 1 << 0;
+@inline const EMPTY: usize = 1 << 0;
 
 /** Size of a bucket. */
 // @ts-ignore: decorator
-@inline
-const BUCKET_SIZE = sizeof<usize>();
+@inline const BUCKET_SIZE = sizeof<usize>();
 
 /** Computes the alignment of an entry. */
 // @ts-ignore: decorator
@@ -60,26 +53,28 @@ function ENTRY_SIZE<T>(): usize {
 
 export class Set<T> {
 
-  // buckets holding references to the respective first entry within
-  private buckets: ArrayBuffer; // usize[bucketsMask + 1]
-  private bucketsMask: u32;
+  // buckets referencing their respective first entry, usize[bucketsMask + 1]
+  private buckets: ArrayBuffer = new ArrayBuffer(INITIAL_CAPACITY * <i32>BUCKET_SIZE);
+  private bucketsMask: u32 = INITIAL_CAPACITY - 1;
 
-  // entries in insertion order
-  private entries: ArrayBuffer; // SetEntry<K>[entriesCapacity]
-  private entriesCapacity: i32;
-  private entriesOffset: i32;
-  private entriesCount: i32;
+  // entries in insertion order, SetEntry<K>[entriesCapacity]
+  private entries: ArrayBuffer = new ArrayBuffer(INITIAL_CAPACITY * <i32>ENTRY_SIZE<T>());
+  private entriesCapacity: i32 = INITIAL_CAPACITY;
+  private entriesOffset: i32 = 0;
+  private entriesCount: i32 = 0;
 
-  get size(): i32 { return this.entriesCount; }
+  constructor() {
+    /* nop */
+  }
 
-  constructor() { this.clear(); }
+  get size(): i32 {
+    return this.entriesCount;
+  }
 
   clear(): void {
-    const bucketsSize = INITIAL_CAPACITY * <i32>BUCKET_SIZE;
-    this.buckets = new ArrayBuffer(bucketsSize);
+    this.buckets = new ArrayBuffer(INITIAL_CAPACITY * <i32>BUCKET_SIZE);
     this.bucketsMask = INITIAL_CAPACITY - 1;
-    const entriesSize = INITIAL_CAPACITY * <i32>ENTRY_SIZE<T>();
-    this.entries = new ArrayBuffer(entriesSize);
+    this.entries = new ArrayBuffer(INITIAL_CAPACITY * <i32>ENTRY_SIZE<T>());
     this.entriesCapacity = INITIAL_CAPACITY;
     this.entriesOffset = 0;
     this.entriesCount = 0;
@@ -90,8 +85,9 @@ export class Set<T> {
       changetype<usize>(this.buckets) + <usize>(hashCode & this.bucketsMask) * BUCKET_SIZE
     );
     while (entry) {
-      if (!(entry.taggedNext & EMPTY) && entry.key == key) return entry;
-      entry = changetype<SetEntry<T>>(entry.taggedNext & ~EMPTY);
+      let taggedNext = entry.taggedNext;
+      if (!(taggedNext & EMPTY) && entry.key == key) return entry;
+      entry = changetype<SetEntry<T>>(taggedNext & ~EMPTY);
     }
     return null;
   }
@@ -114,10 +110,11 @@ export class Set<T> {
         );
       }
       // append new entry
-      entry = changetype<SetEntry<T>>(changetype<usize>(this.entries) + this.entriesOffset++ * ENTRY_SIZE<T>());
-      entry.key = isManaged<T>()
-        ? changetype<T>(__retain(changetype<usize>(key)))
-        : key;
+      entry = changetype<SetEntry<T>>(changetype<usize>(this.entries) + <usize>(this.entriesOffset++) * ENTRY_SIZE<T>());
+      entry.key = key;
+      if (isManaged<T>()) {
+        __link(changetype<usize>(this), changetype<usize>(key), true);
+      }
       ++this.entriesCount;
       // link with previous entry in bucket
       let bucketPtrBase = changetype<usize>(this.buckets) + <usize>(hashCode & this.bucketsMask) * BUCKET_SIZE;
@@ -136,7 +133,6 @@ export class Set<T> {
   delete(key: T): bool {
     var entry = this.find(key, HASH<T>(key)); // unmanaged!
     if (!entry) return false;
-    if (isManaged<T>()) __release(changetype<usize>(entry.key)); // exact 'key'
     entry.taggedNext |= EMPTY;
     --this.entriesCount;
     // check if rehashing is appropriate
@@ -162,8 +158,9 @@ export class Set<T> {
       let oldEntry = changetype<SetEntry<T>>(oldPtr); // unmanaged!
       if (!(oldEntry.taggedNext & EMPTY)) {
         let newEntry = changetype<SetEntry<T>>(newPtr); // unmanaged!
-        newEntry.key = oldEntry.key;
-        let newBucketIndex = HASH<T>(oldEntry.key) & newBucketsMask;
+        let oldEntryKey = oldEntry.key;
+        newEntry.key = oldEntryKey;
+        let newBucketIndex = HASH<T>(oldEntryKey) & newBucketsMask;
         let newBucketPtrBase = changetype<usize>(newBuckets) + <usize>newBucketIndex * BUCKET_SIZE;
         newEntry.taggedNext = load<usize>(newBucketPtrBase);
         store<usize>(newBucketPtrBase, newPtr);
@@ -191,6 +188,7 @@ export class Set<T> {
         values[length++] = entry.key;
       }
     }
+    values.length = length;
     return values;
   }
 
@@ -200,7 +198,7 @@ export class Set<T> {
 
   // RT integration
 
-  @unsafe private __visit_impl(cookie: u32): void {
+  @unsafe private __visit(cookie: u32): void {
     __visit(changetype<usize>(this.buckets), cookie);
     var entries = changetype<usize>(this.entries);
     if (isManaged<T>()) {

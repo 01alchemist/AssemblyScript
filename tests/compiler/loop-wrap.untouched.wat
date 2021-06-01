@@ -1,13 +1,17 @@
 (module
  (type $none_=>_none (func))
  (type $i32_=>_none (func (param i32)))
+ (global $~lib/memory/__data_end i32 (i32.const 8))
+ (global $~lib/memory/__stack_pointer (mut i32) (i32.const 16392))
+ (global $~lib/memory/__heap_base i32 (i32.const 16392))
  (memory $0 0)
  (table $0 1 funcref)
- (export "memory" (memory $0))
+ (elem $0 (i32.const 1))
  (export "testAlwaysWrapped" (func $loop-wrap/testAlwaysWrapped))
  (export "testFirstWrapped" (func $loop-wrap/testFirstWrapped))
  (export "testSubsequentWrapped" (func $loop-wrap/testSubsequentWrapped))
- (func $loop-wrap/testAlwaysWrapped (; 0 ;)
+ (export "memory" (memory $0))
+ (func $loop-wrap/testAlwaysWrapped
   (local $0 i32)
   (local $1 i32)
   i32.const 0
@@ -32,13 +36,21 @@
    end
   end
  )
- (func $loop-wrap/testFirstWrapped (; 1 ;)
+ (func $loop-wrap/testFirstWrapped
   (local $0 i32)
   (local $1 i32)
   i32.const 0
   local.set $0
-  block $while-break|1
-   loop $while-continue|1
+  block $do-break|1
+   loop $do-continue|1
+    local.get $0
+    i32.const 255
+    i32.and
+    i32.const 10
+    i32.eq
+    if
+     br $do-break|1
+    end
     local.get $0
     i32.const 1
     i32.add
@@ -47,21 +59,11 @@
     i32.and
     local.set $1
     local.get $1
-    if
-     local.get $0
-     i32.const 255
-     i32.and
-     i32.const 10
-     i32.eq
-     if
-      br $while-break|1
-     end
-     br $while-continue|1
-    end
+    br_if $do-continue|1
    end
   end
  )
- (func $loop-wrap/testSubsequentWrapped (; 2 ;) (param $0 i32)
+ (func $loop-wrap/testSubsequentWrapped (param $0 i32)
   (local $1 i32)
   (local $2 i32)
   local.get $0

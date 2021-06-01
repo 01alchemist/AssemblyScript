@@ -1,3 +1,5 @@
+type auto = i32;
+
 // @ts-ignore: decorator
 @builtin
 export declare function isInteger<T>(value?: T): bool;
@@ -40,11 +42,11 @@ export declare function isNullable<T>(value?: T): bool;
 
 // @ts-ignore: decorator
 @builtin
-export declare function isDefined(expression: void): bool;
+export declare function isDefined(expression: auto): bool;
 
 // @ts-ignore: decorator
 @builtin
-export declare function isConstant(expression: void): bool;
+export declare function isConstant(expression: auto): bool;
 
 // @ts-ignore: decorator
 @builtin
@@ -52,7 +54,7 @@ export declare function isManaged<T>(value?: T): bool;
 
 // @ts-ignore: decorator
 @builtin
-export declare function isVoid<T>(): boolean;
+export declare function isVoid<T>(): bool;
 
 // @ts-ignore
 @builtin
@@ -119,12 +121,28 @@ export declare function sqrt<T>(value: T): T;
 export declare function trunc<T>(value: T): T;
 
 // @ts-ignore: decorator
+@builtin
+export declare function add<T>(left: T, right: T): T;
+
+// @ts-ignore: decorator
+@builtin
+export declare function sub<T>(left: T, right: T): T;
+
+// @ts-ignore: decorator
+@builtin
+export declare function mul<T>(left: T, right: T): T;
+
+// @ts-ignore: decorator
+@builtin
+export declare function div<T>(left: T, right: T): T;
+
+// @ts-ignore: decorator
 @unsafe @builtin
 export declare function load<T>(ptr: usize, immOffset?: usize, immAlign?: usize): T;
 
 // @ts-ignore: decorator
 @unsafe @builtin
-export declare function store<T>(ptr: usize, value: void, immOffset?: usize, immAlign?: usize): void;
+export declare function store<T>(ptr: usize, value: auto, immOffset?: usize, immAlign?: usize): void;
 
 // @ts-ignore: decorator
 @builtin
@@ -156,7 +174,7 @@ export declare function unreachable(): void;
 
 // @ts-ignore: decorator
 @builtin
-export declare function changetype<T>(value: void): T;
+export declare function changetype<T>(value: auto): T;
 
 // @ts-ignore: decorator
 @builtin
@@ -167,8 +185,12 @@ export declare function assert<T>(isTrueish: T, message?: string): T;
 export declare function unchecked<T>(expr: T): T;
 
 // @ts-ignore: decorator
+@unsafe @builtin
+export declare function call_indirect<T>(index: u32, ...args: auto[]): T;
+
+// @ts-ignore: decorator
 @builtin
-export declare function instantiate<T>(...args: void[]): T;
+export declare function instantiate<T>(...args: auto[]): T;
 
 export namespace atomic {
   // @ts-ignore: decorator
@@ -230,7 +252,7 @@ export const enum AtomicWaitResult {
 
 // @ts-ignore: decorator
 @builtin
-export declare function i8(value: void): i8;
+export declare function i8(value: auto): i8;
 
 export namespace i8 {
 
@@ -245,7 +267,7 @@ export namespace i8 {
 
 // @ts-ignore: decorator
 @builtin
-export declare function i16(value: void): i16;
+export declare function i16(value: auto): i16;
 
 export namespace i16 {
 
@@ -260,7 +282,7 @@ export namespace i16 {
 
 // @ts-ignore: decorator
 @builtin
-export declare function i32(value: void): i32;
+export declare function i32(value: auto): i32;
 
 export namespace i32 {
 
@@ -283,6 +305,26 @@ export namespace i32 {
   // @ts-ignore: decorator
   @builtin
   export declare function popcnt(value: i32): i32;
+
+  // @ts-ignore: decorator
+  @builtin
+  export declare function add(left: i32, right:i32): i32;
+
+  // @ts-ignore: decorator
+  @builtin
+  export declare function sub(left: i32, right:i32): i32;
+
+  // @ts-ignore: decorator
+  @builtin
+  export declare function mul(left: i32, right:i32): i32;
+
+  // @ts-ignore: decorator
+  @builtin
+  export declare function div_s(left: i32, right:i32): i32;
+
+  // @ts-ignore: decorator
+  @builtin
+  export declare function div_u(left: i32, right:i32): i32;
 
   // @ts-ignore: decorator
   @builtin
@@ -455,7 +497,7 @@ export namespace i32 {
 
 // @ts-ignore: decorator
 @builtin
-export declare function i64(value: void): i64;
+export declare function i64(value: auto): i64;
 
 export namespace i64 {
 
@@ -474,6 +516,26 @@ export namespace i64 {
   // @ts-ignore: decorator
   @builtin
   export declare function ctz(value: i64): i64;
+
+  // @ts-ignore: decorator
+  @builtin
+  export declare function add(left: i64, right:i64): i64;
+
+  // @ts-ignore: decorator
+  @builtin
+  export declare function sub(left: i64, right:i64): i64;
+
+  // @ts-ignore: decorator
+  @builtin
+  export declare function mul(left: i64, right:i64): i64;
+
+  // @ts-ignore: decorator
+  @builtin
+  export declare function div_s(left: i64, right:i64): i64;
+
+  // @ts-ignore: decorator
+  @builtin
+  export declare function div_u(left: i64, right:i64): i64;
 
   // @ts-ignore: decorator
   @builtin
@@ -701,7 +763,7 @@ export namespace i64 {
 
 // @ts-ignore: decorator
 @builtin
-export declare function isize(value: void): isize;
+export declare function isize(value: auto): isize;
 
 export namespace isize {
 
@@ -720,7 +782,7 @@ export namespace isize {
 
 // @ts-ignore: decorator
 @builtin
-export declare function u8(value: void): u8;
+export declare function u8(value: auto): u8;
 
 export namespace u8 {
 
@@ -735,7 +797,7 @@ export namespace u8 {
 
 // @ts-ignore: decorator
 @builtin
-export declare function u16(value: void): u16;
+export declare function u16(value: auto): u16;
 
 export namespace u16 {
 
@@ -750,7 +812,7 @@ export namespace u16 {
 
 // @ts-ignore: decorator
 @builtin
-export declare function u32(value: void): u32;
+export declare function u32(value: auto): u32;
 
 export namespace u32 {
 
@@ -765,7 +827,7 @@ export namespace u32 {
 
 // @ts-ignore: decorator
 @builtin
-export declare function u64(value: void): u64;
+export declare function u64(value: auto): u64;
 
 export namespace u64 {
 
@@ -780,7 +842,7 @@ export namespace u64 {
 
 // @ts-ignore: decorator
 @builtin
-export declare function usize(value: void): usize;
+export declare function usize(value: auto): usize;
 
 export namespace usize {
 
@@ -797,7 +859,7 @@ export namespace usize {
 
 // @ts-ignore: decorator
 @builtin
-export declare function bool(value: void): bool;
+export declare function bool(value: auto): bool;
 
 export namespace bool {
 
@@ -812,7 +874,7 @@ export namespace bool {
 
 // @ts-ignore: decorator
 @builtin
-export declare function f32(value: void): f32;
+export declare function f32(value: auto): f32;
 
 export namespace f32 {
 
@@ -839,6 +901,18 @@ export namespace f32 {
   // @ts-ignore: decorator
   @lazy
   export const MAX_SAFE_INTEGER: f32 =  16777215;
+
+  // @ts-ignore: decorator
+  @lazy
+  export const POSITIVE_INFINITY: f32 =  Infinity;
+
+  // @ts-ignore: decorator
+  @lazy
+  export const NEGATIVE_INFINITY: f32 = -Infinity;
+
+  // @ts-ignore: decorator
+  @lazy
+  export const NaN: f32 = 0.0 / 0.0;
 
   // @ts-ignore: decorator
   @builtin
@@ -887,11 +961,27 @@ export namespace f32 {
   // @ts-ignore: decorator
   @builtin
   export declare function trunc(value: f32): f32;
+
+  // @ts-ignore: decorator
+  @builtin
+  export declare function add(left: f32, right: f32): f32;
+
+  // @ts-ignore: decorator
+  @builtin
+  export declare function sub(left: f32, right: f32): f32;
+
+  // @ts-ignore: decorator
+  @builtin
+  export declare function mul(left: f32, right: f32): f32;
+
+  // @ts-ignore: decorator
+  @builtin
+  export declare function div(left: f32, right: f32): f32;
 }
 
 // @ts-ignore: decorator
 @builtin
-export declare function f64(value: void): f64;
+export declare function f64(value: auto): f64;
 
 export namespace f64 {
 
@@ -918,6 +1008,18 @@ export namespace f64 {
   // @ts-ignore: decorator
   @lazy
   export const MAX_SAFE_INTEGER: f64 =  9007199254740991;
+
+  // @ts-ignore: decorator
+  @lazy
+  export const POSITIVE_INFINITY: f64 =  Infinity;
+
+  // @ts-ignore: decorator
+  @lazy
+  export const NEGATIVE_INFINITY: f64 = -Infinity;
+
+  // @ts-ignore: decorator
+  @lazy
+  export const NaN: f64 = 0.0 / 0.0;
 
   // @ts-ignore: decorator
   @builtin
@@ -966,6 +1068,22 @@ export namespace f64 {
   // @ts-ignore: decorator
   @builtin
   export declare function trunc(value: f64): f64;
+
+  // @ts-ignore: decorator
+  @builtin
+  export declare function add(left: f64, right: f64): f64;
+
+  // @ts-ignore: decorator
+  @builtin
+  export declare function sub(left: f64, right: f64): f64;
+
+  // @ts-ignore: decorator
+  @builtin
+  export declare function mul(left: f64, right: f64): f64;
+
+  // @ts-ignore: decorator
+  @builtin
+  export declare function div(left: f64, right: f64): f64;
 }
 
 // @ts-ignore: decorator
@@ -1003,11 +1121,103 @@ export namespace v128 {
 
   // @ts-ignore: decorator
   @unsafe @builtin
+  export declare function load_ext<TFrom>(ptr: usize, immOffset?: usize, immAlign?: usize): v128;
+
+  // @ts-ignore: decorator
+  @unsafe @builtin
+  export declare function load_zero<TFrom>(ptr: usize, immOffset?: usize, immAlign?: usize): v128;
+
+  // @ts-ignore: decorator
+  @unsafe @builtin
+  export declare function load_lane<TFrom>(ptr: usize, vec: v128, idx: u8, immOffset?: usize, immAlign?: usize): v128;
+
+  // @ts-ignore: decorator
+  @unsafe @builtin
+  export declare function store_lane<TFrom>(ptr: usize, vec: v128, idx: u8, immOffset?: usize, immAlign?: usize): v128;
+
+  // @ts-ignore: decorator
+  @builtin
+  export declare function load8x8_s(ptr: usize, immOffset?: u32, immAlign?: u32): v128;
+
+  // @ts-ignore: decorator
+  @builtin
+  export declare function load8x8_u(ptr: usize, immOffset?: u32, immAlign?: u32): v128;
+
+  // @ts-ignore: decorator
+  @builtin
+  export declare function load16x4_s(ptr: usize, immOffset?: u32, immAlign?: u32): v128;
+
+  // @ts-ignore: decorator
+  @builtin
+  export declare function load16x4_u(ptr: usize, immOffset?: u32, immAlign?: u32): v128;
+
+  // @ts-ignore: decorator
+  @builtin
+  export declare function load32x2_s(ptr: usize, immOffset?: u32, immAlign?: u32): v128;
+
+  // @ts-ignore: decorator
+  @builtin
+  export declare function load32x2_u(ptr: usize, immOffset?: u32, immAlign?: u32): v128;
+
+  // @ts-ignore: decorator
+  @unsafe @builtin
   export declare function load_splat<T>(ptr: usize, immOffset?: usize, immAlign?: usize): v128;
 
   // @ts-ignore: decorator
   @unsafe @builtin
-  export declare function load_ext<TFrom>(ptr: usize, immOffset?: usize, immAlign?: usize): v128;
+  export declare function load8_splat(ptr: usize, immOffset?: u32, immAlign?: u32): v128;
+
+  // @ts-ignore: decorator
+  @unsafe @builtin
+  export declare function load16_splat(ptr: usize, immOffset?: u32, immAlign?: u32): v128;
+
+  // @ts-ignore: decorator
+  @unsafe @builtin
+  export declare function load32_splat(ptr: usize, immOffset?: u32, immAlign?: u32): v128;
+
+  // @ts-ignore: decorator
+  @unsafe @builtin
+  export declare function load64_splat(ptr: usize, immOffset?: u32, immAlign?: u32): v128;
+
+  // @ts-ignore: decorator
+  @unsafe @builtin
+  export declare function load32_zero(ptr: usize, immOffset?: u32, immAlign?: u32): v128;
+
+  // @ts-ignore: decorator
+  @unsafe @builtin
+  export declare function load64_zero(ptr: usize, immOffset?: u32, immAlign?: u32): v128;
+
+  // @ts-ignore: decorator
+  @unsafe @builtin
+  export declare function load8_lane(ptr: usize, vec: v128, idx: u8, immOffset?: u32, immAlign?: u32): v128;
+
+  // @ts-ignore: decorator
+  @unsafe @builtin
+  export declare function load16_lane(ptr: usize, vec: v128, idx: u8, immOffset?: u32, immAlign?: u32): v128;
+
+  // @ts-ignore: decorator
+  @unsafe @builtin
+  export declare function load32_lane(ptr: usize, vec: v128, idx: u8, immOffset?: u32, immAlign?: u32): v128;
+
+  // @ts-ignore: decorator
+  @unsafe @builtin
+  export declare function load64_lane(ptr: usize, vec: v128, idx: u8, immOffset?: u32, immAlign?: u32): v128;
+
+  // @ts-ignore: decorator
+  @unsafe @builtin
+  export declare function store8_lane(ptr: usize, vec: v128, idx: u8, immOffset?: u32, immAlign?: u32): v128;
+
+  // @ts-ignore: decorator
+  @unsafe @builtin
+  export declare function store16_lane(ptr: usize, vec: v128, idx: u8, immOffset?: u32, immAlign?: u32): v128;
+
+  // @ts-ignore: decorator
+  @unsafe @builtin
+  export declare function store32_lane(ptr: usize, vec: v128, idx: u8, immOffset?: u32, immAlign?: u32): v128;
+
+  // @ts-ignore: decorator
+  @unsafe @builtin
+  export declare function store64_lane(ptr: usize, vec: v128, idx: u8, immOffset?: u32, immAlign?: u32): v128;
 
   // @ts-ignore: decorator
   @unsafe @builtin
@@ -1023,7 +1233,7 @@ export namespace v128 {
 
   // @ts-ignore: decorator
   @builtin
-  export declare function mul<T>(a: v128, b: v128): v128; // except i64
+  export declare function mul<T>(a: v128, b: v128): v128;
 
   // @ts-ignore: decorator
   @builtin
@@ -1035,11 +1245,11 @@ export namespace v128 {
 
   // @ts-ignore: decorator
   @builtin
-  export declare function add_saturate<T>(a: v128, b: v128): v128;
+  export declare function add_sat<T>(a: v128, b: v128): v128;
 
   // @ts-ignore: decorator
   @builtin
-  export declare function sub_saturate<T>(a: v128, b: v128): v128;
+  export declare function sub_sat<T>(a: v128, b: v128): v128;
 
   // @ts-ignore: decorator
   @builtin
@@ -1075,11 +1285,19 @@ export namespace v128 {
 
   // @ts-ignore: decorator
   @builtin
-  export declare function any_true<T>(a: v128): bool;
+  export declare function any_true(a: v128): bool;
 
   // @ts-ignore: decorator
   @builtin
   export declare function all_true<T>(a: v128): bool;
+
+  // @ts-ignore: decorator
+  @builtin
+  export declare function bitmask<T>(a: v128): i32;
+
+  // @ts-ignore: decorator
+  @builtin
+  export declare function popcnt<T>(a: v128): v128;
 
   // @ts-ignore: decorator
   @builtin
@@ -1088,6 +1306,14 @@ export namespace v128 {
   // @ts-ignore: decorator
   @builtin
   export declare function max<T>(a: v128, b: v128): v128;
+
+  // @ts-ignore: decorator
+  @builtin
+  export declare function pmin<T>(a: v128, b: v128): v128;
+
+  // @ts-ignore: decorator
+  @builtin
+  export declare function pmax<T>(a: v128, b: v128): v128;
 
   // @ts-ignore: decorator
   @builtin
@@ -1104,6 +1330,22 @@ export namespace v128 {
   // @ts-ignore: decorator
   @builtin
   export declare function sqrt<T>(a: v128): v128; // f32, f64 only
+
+  // @ts-ignore: decorator
+  @builtin
+  export declare function ceil<T>(a: v128): v128; // f32, f64 only
+
+  // @ts-ignore: decorator
+  @builtin
+  export declare function floor<T>(a: v128): v128; // f32, f64 only
+
+  // @ts-ignore: decorator
+  @builtin
+  export declare function trunc<T>(a: v128): v128; // f32, f64 only
+
+  // @ts-ignore: decorator
+  @builtin
+  export declare function nearest<T>(a: v128): v128; // f32, f64 only
 
   // @ts-ignore: decorator
   @builtin
@@ -1135,7 +1377,15 @@ export namespace v128 {
 
   // @ts-ignore: decorator
   @builtin
+  export declare function convert_low<T>(a: v128): v128;
+
+  // @ts-ignore: decorator
+  @builtin
   export declare function trunc_sat<T>(a: v128): v128;
+
+  // @ts-ignore: decorator
+  @builtin
+  export declare function trunc_sat_zero<T>(a: v128): v128;
 
   // @ts-ignore: decorator
   @builtin
@@ -1143,19 +1393,35 @@ export namespace v128 {
 
   // @ts-ignore: decorator
   @builtin
-  export declare function widen_low<T>(a: v128): v128;
+  export declare function extend_low<T>(a: v128): v128;
 
   // @ts-ignore: decorator
   @builtin
-  export declare function widen_high<T>(a: v128): v128;
+  export declare function extend_high<T>(a: v128): v128;
 
   // @ts-ignore: decorator
   @builtin
-  export declare function qfma<T>(v1: v128, v2: v128, c: v128): v128;
+  export declare function extadd_pairwise<T>(a: v128): v128;
 
   // @ts-ignore: decorator
   @builtin
-  export declare function qfms<T>(v1: v128, v2: v128, c: v128): v128;
+  export declare function demote_zero<T = f64>(a: v128): v128;
+
+  // @ts-ignore: decorator
+  @builtin
+  export declare function promote_low<T = f32>(a: v128): v128;
+
+  // @ts-ignore: decorator
+  @builtin
+  export declare function q15mulr_sat<T>(a: v128, b: v128): v128;
+
+  // @ts-ignore: decorator
+  @builtin
+  export declare function extmul_low<T>(a: v128, b: v128): v128;
+
+  // @ts-ignore: decorator
+  @builtin
+  export declare function extmul_high<T>(a: v128, b: v128): v128;
 }
 
 // @ts-ignore: decorator
@@ -1193,10 +1459,6 @@ export namespace i8x16 {
 
   // @ts-ignore: decorator
   @builtin
-  export declare function mul(a: v128, b: v128): v128;
-
-  // @ts-ignore: decorator
-  @builtin
   export declare function min_s(a: v128, b: v128): v128;
 
   // @ts-ignore: decorator
@@ -1217,23 +1479,27 @@ export namespace i8x16 {
 
   // @ts-ignore: decorator
   @builtin
+  export declare function abs(a: v128): v128;
+
+  // @ts-ignore: decorator
+  @builtin
   export declare function neg(a: v128): v128;
 
   // @ts-ignore: decorator
   @builtin
-  export declare function add_saturate_s(a: v128, b: v128): v128;
+  export declare function add_sat_s(a: v128, b: v128): v128;
 
   // @ts-ignore: decorator
   @builtin
-  export declare function add_saturate_u(a: v128, b: v128): v128;
+  export declare function add_sat_u(a: v128, b: v128): v128;
 
   // @ts-ignore: decorator
   @builtin
-  export declare function sub_saturate_s(a: v128, b: v128): v128;
+  export declare function sub_sat_s(a: v128, b: v128): v128;
 
   // @ts-ignore: decorator
   @builtin
-  export declare function sub_saturate_u(a: v128, b: v128): v128;
+  export declare function sub_sat_u(a: v128, b: v128): v128;
 
   // @ts-ignore: decorator
   @builtin
@@ -1249,11 +1515,15 @@ export namespace i8x16 {
 
   // @ts-ignore: decorator
   @builtin
-  export declare function any_true(a: v128): bool;
+  export declare function all_true(a: v128): bool;
 
   // @ts-ignore: decorator
   @builtin
-  export declare function all_true(a: v128): bool;
+  export declare function bitmask(a: v128): i32;
+
+  // @ts-ignore: decorator
+  @builtin
+  export declare function popcnt(a: v128): v128;
 
   // @ts-ignore: decorator
   @builtin
@@ -1302,6 +1572,18 @@ export namespace i8x16 {
   // @ts-ignore: decorator
   @builtin
   export declare function narrow_i16x8_u(a: v128, b: v128): v128;
+
+  // @ts-ignore: decorator
+  @builtin
+  export declare function shuffle(
+    a: v128, b: v128,
+    l0: u8, l1: u8, l2: u8, l3: u8, l4: u8, l5: u8, l6: u8, l7: u8,
+    l8: u8, l9: u8, l10: u8, l11: u8, l12: u8, l13: u8, l14: u8, l15: u8
+  ): v128;
+
+  // @ts-ignore: decorator
+  @builtin
+  export declare function swizzle(a: v128, s: v128): v128;
 }
 
 // @ts-ignore: decorator
@@ -1360,23 +1642,27 @@ export namespace i16x8 {
 
   // @ts-ignore: decorator
   @builtin
+  export declare function abs(a: v128): v128;
+
+  // @ts-ignore: decorator
+  @builtin
   export declare function neg(a: v128): v128;
 
   // @ts-ignore: decorator
   @builtin
-  export declare function add_saturate_s(a: v128, b: v128): v128;
+  export declare function add_sat_s(a: v128, b: v128): v128;
 
   // @ts-ignore: decorator
   @builtin
-  export declare function add_saturate_u(a: v128, b: v128): v128;
+  export declare function add_sat_u(a: v128, b: v128): v128;
 
   // @ts-ignore: decorator
   @builtin
-  export declare function sub_saturate_s(a: v128, b: v128): v128;
+  export declare function sub_sat_s(a: v128, b: v128): v128;
 
   // @ts-ignore: decorator
   @builtin
-  export declare function sub_saturate_u(a: v128, b: v128): v128;
+  export declare function sub_sat_u(a: v128, b: v128): v128;
 
   // @ts-ignore: decorator
   @builtin
@@ -1392,11 +1678,11 @@ export namespace i16x8 {
 
   // @ts-ignore: decorator
   @builtin
-  export declare function any_true(a: v128): bool;
+  export declare function all_true(a: v128): bool;
 
   // @ts-ignore: decorator
   @builtin
-  export declare function all_true(a: v128): bool;
+  export declare function bitmask(a: v128): i32;
 
   // @ts-ignore: decorator
   @builtin
@@ -1448,27 +1734,47 @@ export namespace i16x8 {
 
   // @ts-ignore: decorator
   @builtin
-  export declare function widen_low_i8x16_s(a: v128): v128;
+  export declare function extend_low_i8x16_s(a: v128): v128;
 
   // @ts-ignore: decorator
   @builtin
-  export declare function widen_low_i8x16_u(a: v128): v128;
+  export declare function extend_low_i8x16_u(a: v128): v128;
 
   // @ts-ignore: decorator
   @builtin
-  export declare function widen_high_i8x16_s(a: v128): v128;
+  export declare function extend_high_i8x16_s(a: v128): v128;
 
   // @ts-ignore: decorator
   @builtin
-  export declare function widen_high_i8x16_u(a: v128): v128;
+  export declare function extend_high_i8x16_u(a: v128): v128;
 
   // @ts-ignore: decorator
   @builtin
-  export declare function load8x8_s(ptr: usize, immOffset?: u32, immAlign?: u32): v128;
+  export declare function extadd_pairwise_i8x16_s(a: v128): v128;
 
   // @ts-ignore: decorator
   @builtin
-  export declare function load8x8_u(ptr: usize, immOffset?: u32, immAlign?: u32): v128;
+  export declare function extadd_pairwise_i8x16_u(a: v128): v128;
+
+  // @ts-ignore: decorator
+  @builtin
+  export declare function q15mulr_sat_s(a: v128, b: v128): v128;
+
+  // @ts-ignore: decorator
+  @builtin
+  export declare function extmul_low_i8x16_s(a: v128, b: v128): v128;
+
+  // @ts-ignore: decorator
+  @builtin
+  export declare function extmul_low_i8x16_u(a: v128, b: v128): v128;
+
+  // @ts-ignore: decorator
+  @builtin
+  export declare function extmul_high_i8x16_s(a: v128, b: v128): v128;
+
+  // @ts-ignore: decorator
+  @builtin
+  export declare function extmul_high_i8x16_u(a: v128, b: v128): v128;
 }
 
 // @ts-ignore: decorator
@@ -1523,6 +1829,10 @@ export namespace i32x4 {
 
   // @ts-ignore: decorator
   @builtin
+  export declare function abs(a: v128): v128;
+
+  // @ts-ignore: decorator
+  @builtin
   export declare function neg(a: v128): v128;
 
   // @ts-ignore: decorator
@@ -1539,11 +1849,11 @@ export namespace i32x4 {
 
   // @ts-ignore: decorator
   @builtin
-  export declare function any_true(a: v128): bool;
+  export declare function all_true(a: v128): bool;
 
   // @ts-ignore: decorator
   @builtin
-  export declare function all_true(a: v128): bool;
+  export declare function bitmask(a: v128): i32;
 
   // @ts-ignore: decorator
   @builtin
@@ -1595,27 +1905,51 @@ export namespace i32x4 {
 
   // @ts-ignore: decorator
   @builtin
-  export declare function widen_low_i16x8_s(a: v128): v128;
+  export declare function trunc_sat_f64x2_s_zero(a: v128): v128;
 
   // @ts-ignore: decorator
   @builtin
-  export declare function widen_low_i16x8_u(a: v128): v128;
+  export declare function trunc_sat_f64x2_u_zero(a: v128): v128;
 
   // @ts-ignore: decorator
   @builtin
-  export declare function widen_high_i16x8_s(a: v128): v128;
+  export declare function extend_low_i16x8_s(a: v128): v128;
 
   // @ts-ignore: decorator
   @builtin
-  export declare function widen_high_i16x8_u(a: v128): v128;
+  export declare function extend_low_i16x8_u(a: v128): v128;
 
   // @ts-ignore: decorator
   @builtin
-  export declare function load16x4_s(ptr: usize, immOffset?: u32, immAlign?: u32): v128;
+  export declare function extend_high_i16x8_s(a: v128): v128;
 
   // @ts-ignore: decorator
   @builtin
-  export declare function load16x4_u(ptr: usize, immOffset?: u32, immAlign?: u32): v128;
+  export declare function extend_high_i16x8_u(a: v128): v128;
+
+  // @ts-ignore: decorator
+  @builtin
+  export declare function extadd_pairwise_i16x8_s(a: v128): v128;
+
+  // @ts-ignore: decorator
+  @builtin
+  export declare function extadd_pairwise_i16x8_u(a: v128): v128;
+
+  // @ts-ignore: decorator
+  @builtin
+  export declare function extmul_low_i16x8_s(a: v128, b: v128): v128;
+
+  // @ts-ignore: decorator
+  @builtin
+  export declare function extmul_low_i16x8_u(a: v128, b: v128): v128;
+
+  // @ts-ignore: decorator
+  @builtin
+  export declare function extmul_high_i16x8_s(a: v128, b: v128): v128;
+
+  // @ts-ignore: decorator
+  @builtin
+  export declare function extmul_high_i16x8_u(a: v128, b: v128): v128;
 }
 
 // @ts-ignore: decorator
@@ -1650,6 +1984,10 @@ export namespace i64x2 {
 
   // @ts-ignore: decorator
   @builtin
+  export declare function abs(a: v128): v128;
+
+  // @ts-ignore: decorator
+  @builtin
   export declare function neg(a: v128): v128;
 
   // @ts-ignore: decorator
@@ -1666,27 +2004,67 @@ export namespace i64x2 {
 
   // @ts-ignore: decorator
   @builtin
-  export declare function any_true(a: v128): bool;
-
-  // @ts-ignore: decorator
-  @builtin
   export declare function all_true(a: v128): bool;
 
   // @ts-ignore: decorator
   @builtin
-  export declare function trunc_sat_f64x2_s(a: v128): v128;
+  export declare function bitmask(a: v128): i32;
 
   // @ts-ignore: decorator
   @builtin
-  export declare function trunc_sat_f64x2_u(a: v128): v128;
+  export declare function eq(a: v128, b: v128): v128;
 
   // @ts-ignore: decorator
   @builtin
-  export declare function load32x2_s(ptr: usize, immOffset?: u32, immAlign?: u32): v128;
+  export declare function ne(a: v128, b: v128): v128;
 
   // @ts-ignore: decorator
   @builtin
-  export declare function load32x2_u(ptr: usize, immOffset?: u32, immAlign?: u32): v128;
+  export declare function lt_s(a: v128, b: v128): v128;
+
+  // @ts-ignore: decorator
+  @builtin
+  export declare function le_s(a: v128, b: v128): v128;
+
+  // @ts-ignore: decorator
+  @builtin
+  export declare function gt_s(a: v128, b: v128): v128;
+
+  // @ts-ignore: decorator
+  @builtin
+  export declare function ge_s(a: v128, b: v128): v128;
+
+  // @ts-ignore: decorator
+  @builtin
+  export declare function extend_low_i32x4_s(a: v128): v128;
+
+  // @ts-ignore: decorator
+  @builtin
+  export declare function extend_low_i32x4_u(a: v128): v128;
+
+  // @ts-ignore: decorator
+  @builtin
+  export declare function extend_high_i32x4_s(a: v128): v128;
+
+  // @ts-ignore: decorator
+  @builtin
+  export declare function extend_high_i32x4_u(a: v128): v128;
+
+  // @ts-ignore: decorator
+  @builtin
+  export declare function extmul_low_i32x4_s(a: v128, b: v128): v128;
+
+  // @ts-ignore: decorator
+  @builtin
+  export declare function extmul_low_i32x4_u(a: v128, b: v128): v128;
+
+  // @ts-ignore: decorator
+  @builtin
+  export declare function extmul_high_i32x4_s(a: v128, b: v128): v128;
+
+  // @ts-ignore: decorator
+  @builtin
+  export declare function extmul_high_i32x4_u(a: v128, b: v128): v128;
 }
 
 // @ts-ignore: decorator
@@ -1737,11 +2115,35 @@ export namespace f32x4 {
 
   // @ts-ignore: decorator
   @builtin
+  export declare function pmin(a: v128, b: v128): v128;
+
+  // @ts-ignore: decorator
+  @builtin
+  export declare function pmax(a: v128, b: v128): v128;
+
+  // @ts-ignore: decorator
+  @builtin
   export declare function abs(a: v128): v128;
 
   // @ts-ignore: decorator
   @builtin
   export declare function sqrt(a: v128): v128;
+
+  // @ts-ignore: decorator
+  @builtin
+  export declare function ceil(a: v128): v128;
+
+  // @ts-ignore: decorator
+  @builtin
+  export declare function floor(a: v128): v128;
+
+  // @ts-ignore: decorator
+  @builtin
+  export declare function trunc(a: v128): v128;
+
+  // @ts-ignore: decorator
+  @builtin
+  export declare function nearest(a: v128): v128;
 
   // @ts-ignore: decorator
   @builtin
@@ -1777,11 +2179,7 @@ export namespace f32x4 {
 
   // @ts-ignore: decorator
   @builtin
-  export declare function qfma(a: v128, b: v128, c: v128): v128;
-
-  // @ts-ignore: decorator
-  @builtin
-  export declare function qfms(a: v128, b: v128, c: v128): v128;
+  export declare function demote_f64x2_zero(a: v128): v128;
 }
 
 // @ts-ignore: decorator
@@ -1832,11 +2230,35 @@ export namespace f64x2 {
 
   // @ts-ignore: decorator
   @builtin
+  export declare function pmin(a: v128, b: v128): v128;
+
+  // @ts-ignore: decorator
+  @builtin
+  export declare function pmax(a: v128, b: v128): v128;
+
+  // @ts-ignore: decorator
+  @builtin
   export declare function abs(a: v128): v128;
 
   // @ts-ignore: decorator
   @builtin
   export declare function sqrt(a: v128): v128;
+
+  // @ts-ignore: decorator
+  @builtin
+  export declare function ceil(a: v128): v128;
+
+  // @ts-ignore: decorator
+  @builtin
+  export declare function floor(a: v128): v128;
+
+  // @ts-ignore: decorator
+  @builtin
+  export declare function trunc(a: v128): v128;
+
+  // @ts-ignore: decorator
+  @builtin
+  export declare function nearest(a: v128): v128;
 
   // @ts-ignore: decorator
   @builtin
@@ -1864,60 +2286,30 @@ export namespace f64x2 {
 
   // @ts-ignore: decorator
   @builtin
-  export declare function convert_i64x2_s(a: v128): v128;
+  export declare function convert_low_i32x4_s(a: v128): v128;
 
   // @ts-ignore: decorator
   @builtin
-  export declare function convert_i64x2_u(a: v128): v128;
+  export declare function convert_low_i32x4_u(a: v128): v128;
 
   // @ts-ignore: decorator
   @builtin
-  export declare function qfma(a: v128, b: v128, c: v128): v128;
+  export declare function promote_low_f32x4(a: v128): v128;
+}
+
+@final
+export abstract class i31 { // FIXME: usage of 'new' requires a class :(
 
   // @ts-ignore: decorator
   @builtin
-  export declare function qfms(a: v128, b: v128, c: v128): v128;
-}
-
-export namespace v8x16 {
+  static new(value: i32): i31ref { return unreachable(); }
 
   // @ts-ignore: decorator
   @builtin
-  export declare function shuffle(
-    a: v128, b: v128,
-    l0: u8, l1: u8, l2: u8, l3: u8, l4: u8, l5: u8, l6: u8, l7: u8,
-    l8: u8, l9: u8, l10: u8, l11: u8, l12: u8, l13: u8, l14: u8, l15: u8
-  ): v128;
-
-  // @ts-ignore: decorator
-  @builtin
-  export declare function swizzle(a: v128, s: v128): v128;
-
-  // @ts-ignore: decorator
-  @unsafe @builtin
-  export declare function load_splat(ptr: usize, immOffset?: u32, immAlign?: u32): v128;
+  static get(i31expr: i31ref): i32 { return unreachable(); }
 }
 
-export namespace v16x8 {
-
-  // @ts-ignore: decorator
-  @unsafe @builtin
-  export declare function load_splat(ptr: usize, immOffset?: u32, immAlign?: u32): v128;
-}
-
-export namespace v32x4 {
-
-  // @ts-ignore: decorator
-  @unsafe @builtin
-  export declare function load_splat(ptr: usize, immOffset?: u32, immAlign?: u32): v128;
-}
-
-export namespace v64x2 {
-
-  // @ts-ignore: decorator
-  @unsafe @builtin
-  export declare function load_splat(ptr: usize, immOffset?: u32, immAlign?: u32): v128;
-}
+/* eslint-disable @typescript-eslint/no-unused-vars */
 
 // @ts-ignore: decorator
 @external("env", "abort")
@@ -1939,3 +2331,9 @@ declare function trace(
   a3?: f64,
   a4?: f64
 ): void;
+
+// @ts-ignore: decorator
+@external("env", "seed")
+declare function seed(): f64;
+
+/* eslint-enable @typescript-eslint/no-unused-vars */

@@ -1,16 +1,20 @@
 (module
- (type $none_=>_none (func))
  (type $i32_=>_i32 (func (param i32) (result i32)))
+ (type $none_=>_none (func))
  (type $i32_i32_i32_i32_=>_none (func (param i32 i32 i32 i32)))
  (import "env" "abort" (func $~lib/builtins/abort (param i32 i32 i32 i32)))
+ (global $~lib/memory/__data_end i32 (i32.const 60))
+ (global $~lib/memory/__stack_pointer (mut i32) (i32.const 16444))
+ (global $~lib/memory/__heap_base i32 (i32.const 16444))
  (memory $0 1)
- (data (i32.const 16) "\1c\00\00\00\01\00\00\00\01\00\00\00\1c\00\00\00m\00a\00n\00y\00-\00l\00o\00c\00a\00l\00s\00.\00t\00s\00")
+ (data (i32.const 12) ",\00\00\00\00\00\00\00\00\00\00\00\01\00\00\00\1c\00\00\00m\00a\00n\00y\00-\00l\00o\00c\00a\00l\00s\00.\00t\00s\00")
  (table $0 1 funcref)
- (export "memory" (memory $0))
+ (elem $0 (i32.const 1))
  (export "testI32" (func $many-locals/testI32))
  (export "testI8" (func $many-locals/testI8))
+ (export "memory" (memory $0))
  (start $~start)
- (func $many-locals/testI32 (; 1 ;) (param $0 i32) (result i32)
+ (func $many-locals/testI32 (param $0 i32) (result i32)
   (local $1 i32)
   (local $2 i32)
   (local $3 i32)
@@ -397,7 +401,7 @@
   local.set $128
   local.get $128
  )
- (func $many-locals/testI8 (; 2 ;) (param $0 i32) (result i32)
+ (func $many-locals/testI8 (param $0 i32) (result i32)
   (local $1 i32)
   (local $2 i32)
   (local $3 i32)
@@ -783,12 +787,9 @@
   local.get $127
   local.set $128
   local.get $128
-  i32.const 24
-  i32.shl
-  i32.const 24
-  i32.shr_s
+  i32.extend8_s
  )
- (func $start:many-locals (; 3 ;)
+ (func $start:many-locals
   i32.const 42
   call $many-locals/testI32
   i32.const 42
@@ -798,12 +799,13 @@
    i32.const 0
    i32.const 32
    i32.const 133
-   i32.const 0
+   i32.const 1
    call $~lib/builtins/abort
    unreachable
   end
   i32.const 42
   call $many-locals/testI8
+  i32.extend8_s
   i32.const 42
   i32.eq
   i32.eqz
@@ -811,12 +813,12 @@
    i32.const 0
    i32.const 32
    i32.const 267
-   i32.const 0
+   i32.const 1
    call $~lib/builtins/abort
    unreachable
   end
  )
- (func $~start (; 4 ;)
+ (func $~start
   call $start:many-locals
  )
 )

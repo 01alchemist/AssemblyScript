@@ -1,18 +1,15 @@
 import { Map } from "./map";
 
 // @ts-ignore: decorator
-@lazy
-var stringToId: Map<string, usize>;
+@lazy var stringToId: Map<string, usize>;
 
 // @ts-ignore: decorator
-@lazy
-var idToString: Map<usize, string>;
+@lazy var idToString: Map<usize, string>;
 
 // @ts-ignore: decorator
-@lazy
-var nextId: usize = 12; // Symbol.unscopables + 1
+@lazy var nextId: usize = 12; // Symbol.unscopables + 1
 
-@unmanaged @sealed abstract class _Symbol {
+@unmanaged @final abstract class _Symbol {
 
   // TODO: all of the following default symbols are unused currently yet add to
   // binary size if #toString becomes compiled. Ultimately we'll most likely want
@@ -85,7 +82,7 @@ var nextId: usize = 12; // Symbol.unscopables + 1
   toString(): string {
     var id = changetype<usize>(this);
     var str = "";
-    switch (id) {
+    switch (<u32>id) {
       case 1:  { str = "hasInstance"; break; }
       case 2:  { str = "isConcatSpreadable"; break; }
       case 3:  { str = "isRegExp"; break; }

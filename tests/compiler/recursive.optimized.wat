@@ -1,9 +1,9 @@
 (module
  (type $i32_=>_i32 (func (param i32) (result i32)))
  (memory $0 0)
- (export "memory" (memory $0))
  (export "fib" (func $recursive/fib))
- (func $recursive/fib (; 0 ;) (param $0 i32) (result i32)
+ (export "memory" (memory $0))
+ (func $recursive/fib (param $0 i32) (result i32)
   local.get $0
   i32.const 1
   i32.le_s

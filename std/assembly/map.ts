@@ -1,29 +1,24 @@
 /// <reference path="./rt/index.d.ts" />
 
 import { HASH } from "./util/hash";
-import { E_KEYNOTFOUND } from "util/error";
+import { E_KEYNOTFOUND } from "./util/error";
 
 // A deterministic hash map based on CloseTable from https://github.com/jorendorff/dht
 
 // @ts-ignore: decorator
-@inline
-const INITIAL_CAPACITY = 4;
+@inline const INITIAL_CAPACITY = 4;
 
 // @ts-ignore: decorator
-@inline
-const FILL_FACTOR_N = 8;
+@inline const FILL_FACTOR_N = 8;
 
 // @ts-ignore: decorator
-@inline
-const FILL_FACTOR_D = 3;
+@inline const FILL_FACTOR_D = 3;
 
 // @ts-ignore: decorator
-@inline
-const FREE_FACTOR_N = 3;
+@inline const FREE_FACTOR_N = 3;
 
 // @ts-ignore: decorator
-@inline
-const FREE_FACTOR_D = 4;
+@inline const FREE_FACTOR_D = 4;
 
 /** Structure of a map entry. */
 @unmanaged class MapEntry<K,V> {
@@ -34,13 +29,11 @@ const FREE_FACTOR_D = 4;
 
 /** Empty bit. */
 // @ts-ignore: decorator
-@inline
-const EMPTY: usize = 1 << 0;
+@inline const EMPTY: usize = 1 << 0;
 
 /** Size of a bucket. */
 // @ts-ignore: decorator
-@inline
-const BUCKET_SIZE = sizeof<usize>();
+@inline const BUCKET_SIZE = sizeof<usize>();
 
 /** Computes the alignment of an entry. */
 // @ts-ignore: decorator
@@ -63,28 +56,28 @@ function ENTRY_SIZE<K,V>(): usize {
 
 export class Map<K,V> {
 
-  // buckets holding references to the respective first entry within
-  private buckets: ArrayBuffer; // usize[bucketsMask + 1]
-  private bucketsMask: u32;
+  // buckets referencing their respective first entry, usize[bucketsMask + 1]
+  private buckets: ArrayBuffer = new ArrayBuffer(INITIAL_CAPACITY * <i32>BUCKET_SIZE);
+  private bucketsMask: u32 = INITIAL_CAPACITY - 1;
 
-  // entries in insertion order
-  private entries: ArrayBuffer; // MapEntry<K,V>[entriesCapacity]
-  private entriesCapacity: i32;
-  private entriesOffset: i32;
-  private entriesCount: i32;
-
-  get size(): i32 { return this.entriesCount; }
+  // entries in insertion order, MapEntry<K,V>[entriesCapacity]
+  private entries: ArrayBuffer = new ArrayBuffer(INITIAL_CAPACITY * <i32>ENTRY_SIZE<K,V>());
+  private entriesCapacity: i32 = INITIAL_CAPACITY;
+  private entriesOffset: i32 = 0;
+  private entriesCount: i32 = 0;
 
   constructor() {
-    this.clear();
+    /* nop */
+  }
+
+  get size(): i32 {
+    return this.entriesCount;
   }
 
   clear(): void {
-    const bucketsSize = INITIAL_CAPACITY * <i32>BUCKET_SIZE;
-    this.buckets = new ArrayBuffer(bucketsSize);
+    this.buckets = new ArrayBuffer(INITIAL_CAPACITY * <i32>BUCKET_SIZE);
     this.bucketsMask = INITIAL_CAPACITY - 1;
-    const entriesSize = INITIAL_CAPACITY * <i32>ENTRY_SIZE<K,V>();
-    this.entries = new ArrayBuffer(entriesSize);
+    this.entries = new ArrayBuffer(INITIAL_CAPACITY * <i32>ENTRY_SIZE<K,V>());
     this.entriesCapacity = INITIAL_CAPACITY;
     this.entriesOffset = 0;
     this.entriesCount = 0;
@@ -95,8 +88,9 @@ export class Map<K,V> {
       changetype<usize>(this.buckets) + <usize>(hashCode & this.bucketsMask) * BUCKET_SIZE
     );
     while (entry) {
-      if (!(entry.taggedNext & EMPTY) && entry.key == key) return entry;
-      entry = changetype<MapEntry<K,V>>(entry.taggedNext & ~EMPTY);
+      let taggedNext = entry.taggedNext;
+      if (!(taggedNext & EMPTY) && entry.key == key) return entry;
+      entry = changetype<MapEntry<K,V>>(taggedNext & ~EMPTY);
     }
     return null;
   }
@@ -117,14 +111,9 @@ export class Map<K,V> {
     var hashCode = HASH<K>(key);
     var entry = this.find(key, hashCode); // unmanaged!
     if (entry) {
+      entry.value = value;
       if (isManaged<V>()) {
-        let oldRef = changetype<usize>(entry.value);
-        if (changetype<usize>(value) != oldRef) {
-          entry.value = changetype<V>(__retain(changetype<usize>(value)));
-          __release(oldRef);
-        }
-      } else {
-        entry.value = value;
+        __link(changetype<usize>(this), changetype<usize>(value), true);
       }
     } else {
       // check if rehashing is necessary
@@ -137,14 +126,16 @@ export class Map<K,V> {
       }
       // append new entry
       let entries = this.entries;
-      entry = changetype<MapEntry<K,V>>(changetype<usize>(entries) + this.entriesOffset++ * ENTRY_SIZE<K,V>());
+      entry = changetype<MapEntry<K,V>>(changetype<usize>(entries) + <usize>(this.entriesOffset++) * ENTRY_SIZE<K,V>());
       // link with the map
-      entry.key = isManaged<K>()
-        ? changetype<K>(__retain(changetype<usize>(key)))
-        : key;
-      entry.value = isManaged<V>()
-        ? changetype<V>(__retain(changetype<usize>(value)))
-        : value;
+      entry.key = key;
+      if (isManaged<K>()) {
+        __link(changetype<usize>(this), changetype<usize>(key), true);
+      }
+      entry.value = value;
+      if (isManaged<V>()) {
+        __link(changetype<usize>(this), changetype<usize>(value), true);
+      }
       ++this.entriesCount;
       // link with previous entry in bucket
       let bucketPtrBase = changetype<usize>(this.buckets) + <usize>(hashCode & this.bucketsMask) * BUCKET_SIZE;
@@ -157,8 +148,6 @@ export class Map<K,V> {
   delete(key: K): bool {
     var entry = this.find(key, HASH<K>(key));
     if (!entry) return false;
-    if (isManaged<K>()) __release(changetype<usize>(entry.key));
-    if (isManaged<V>()) __release(changetype<usize>(entry.value));
     entry.taggedNext |= EMPTY;
     --this.entriesCount;
     // check if rehashing is appropriate
@@ -184,9 +173,10 @@ export class Map<K,V> {
       let oldEntry = changetype<MapEntry<K,V>>(oldPtr);
       if (!(oldEntry.taggedNext & EMPTY)) {
         let newEntry = changetype<MapEntry<K,V>>(newPtr);
-        newEntry.key = oldEntry.key;
+        let oldEntryKey = oldEntry.key;
+        newEntry.key = oldEntryKey;
         newEntry.value = oldEntry.value;
-        let newBucketIndex = HASH<K>(oldEntry.key) & newBucketsMask;
+        let newBucketIndex = HASH<K>(oldEntryKey) & newBucketsMask;
         let newBucketPtrBase = changetype<usize>(newBuckets) + <usize>newBucketIndex * BUCKET_SIZE;
         newEntry.taggedNext = load<usize>(newBucketPtrBase);
         store<usize>(newBucketPtrBase, newPtr);
@@ -240,7 +230,7 @@ export class Map<K,V> {
 
   // RT integration
 
-  @unsafe private __visit_impl(cookie: u32): void {
+  @unsafe private __visit(cookie: u32): void {
     __visit(changetype<usize>(this.buckets), cookie);
     var entries = changetype<usize>(this.entries);
     if (isManaged<K>() || isManaged<V>()) {

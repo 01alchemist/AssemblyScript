@@ -1,9 +1,23 @@
 const path = require("path");
 const fs = require("fs");
 const webpack = require("webpack");
+const TerserPlugin = require('terser-webpack-plugin');
+
+function preamble(name) {
+  return [
+    "/**",
+    " * @license",
+    " * " + name,
+    " * Copyright Daniel Wirtz / The AssemblyScript Authors.",
+    " * SPDX-License-Identifier: Apache-2.0",
+    " */"
+  ].join("\n");
+}
 
 // Build the C-like library
 const lib = {
+  mode: "production",
+  target: ["web", "es6"],
   entry: [ "./src/glue/js", "./src/index.ts" ],
   module: {
     rules: [
@@ -30,23 +44,37 @@ const lib = {
   devtool: "source-map",
   performance: {
     hints : false
+  },
+  optimization: {
+    minimize: true,
+    minimizer: [
+      new TerserPlugin({
+        terserOptions: {
+          output: {
+            comments: false,
+            preamble: preamble("The AssemblyScript Compiler.")
+          }
+        },
+        parallel: true,
+        extractComments: false
+      })
+    ],
   }
 };
 
 // Build asc for browser usage
+const shimDir = path.join(__dirname, "cli", "shim");
 const bin = {
+  mode: "production",
+  target: ["web", "es6"],
   context: path.join(__dirname, "cli"),
   entry: [ "./asc.js" ],
   externals: [
-    { "../dist/assemblyscript.js": "assemblyscript" }
+    "binaryen",
+    "assemblyscript"
   ],
   node: {
-    "buffer": false,
-    "fs": "empty",
-    "global": true,
-    "os": false,
-    "process": "mock",
-    "crypto": false
+    global: true
   },
   output: {
     filename: "asc.js",
@@ -75,8 +103,27 @@ const bin = {
       },
       __dirname: JSON.stringify(".")
     }),
-    new webpack.IgnorePlugin(/\.\/src|package\.json|^(ts\-node|glob)$/)
-  ]
+
+    // Browser shims
+    new webpack.NormalModuleReplacementPlugin(/^path$/, path.join(shimDir, "path")),
+    new webpack.NormalModuleReplacementPlugin(/^process$/, path.join(shimDir, "process")),
+    new webpack.NormalModuleReplacementPlugin(/^fs$/, path.join(shimDir, "fs"))
+  ],
+  optimization: {
+    minimize: true,
+    minimizer: [
+      new TerserPlugin({
+        terserOptions: {
+          output: {
+            comments: false,
+            preamble: preamble("The AssemblyScript Compiler Frontend.")
+          }
+        },
+        parallel: true,
+        extractComments: false
+      })
+    ],
+  }
 };
 
 function bundleFile(filename) {

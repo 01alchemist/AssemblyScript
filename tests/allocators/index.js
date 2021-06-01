@@ -10,7 +10,8 @@ function test(file) {
         throw Error("Assertion failed: " + (msg ? "'" + getString(msg) + "' " : "") + "at " + getString(file) + ":" + line + ":" + column);
       },
       log(ptr) { console.log(getString(ptr)); },
-      logi(i) { console.log(i); }
+      logi(i) { console.log(i); },
+      trace(...args) { console.log("trace", args); }
     }
   }).exports;
 
@@ -33,12 +34,12 @@ function test(file) {
   try {
     alloc(COMMON_MAX + 1, 0); // unreachable
     overflow = true;
-  } catch (e) {}
+  } catch (e) { /* nop */ }
   if (overflow) throw Error("allocation can overflow COMMON_MAX + 1");
   try {
     alloc(0xffffffff, 0); // unreachable
     overflow = true;
-  } catch (e) {}
+  } catch (e) { /* nop */ }
   if (overflow) throw Error("allocation can overflow 0xffffffff");
 }
 

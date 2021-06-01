@@ -1,14 +1,14 @@
 // Phase: wasi_snapshot_preview1
 // See: https://github.com/WebAssembly/WASI/tree/master/phases/snapshot/witx
 
-/* tslint:disable:max-line-length */
-
 // helper types to be more explicit
 type char = u8;
 type ptr<T> = usize; // all pointers are usize'd
 type struct<T> = T;  // structs are references already in AS
 
 /** Read command-line argument data. */
+// @ts-ignore: decorator
+@unsafe
 export declare function args_get(
   /** Input: Pointer to a buffer to write the argument pointers. */
   argv: ptr<ptr<char>>,
@@ -17,6 +17,8 @@ export declare function args_get(
 ): errno;
 
 /** Return command-line argument data sizes. */
+// @ts-ignore: decorator
+@unsafe
 export declare function args_sizes_get(
   /** Output: Number of arguments. */
   argc: ptr<usize>,
@@ -25,6 +27,8 @@ export declare function args_sizes_get(
 ): errno;
 
 /** Return the resolution of a clock. */
+// @ts-ignore: decorator
+@unsafe
 export declare function clock_res_get(
   /** Input: The clock for which to return the resolution. */
   clock: clockid,
@@ -33,6 +37,8 @@ export declare function clock_res_get(
 ): errno;
 
 /** Return the time value of a clock. */
+// @ts-ignore: decorator
+@unsafe
 export declare function clock_time_get(
   /** Input: Cock for which to return the time. */
   clock: clockid,
@@ -43,6 +49,8 @@ export declare function clock_time_get(
 ): errno;
 
 /** Read environment variable data. */
+// @ts-ignore: decorator
+@unsafe
 export declare function environ_get(
   /** Input: Pointer to a buffer to write the environment variable pointers. */
   environ: ptr<usize>,
@@ -51,6 +59,8 @@ export declare function environ_get(
 ): errno;
 
 /** Return command-line argument data sizes. */
+// @ts-ignore: decorator
+@unsafe
 export declare function environ_sizes_get(
   /** Output: The number of environment variables. */
   environ_count: ptr<usize>,
@@ -59,6 +69,8 @@ export declare function environ_sizes_get(
 ): errno;
 
 /** Provide file advisory information on a file descriptor. */
+// @ts-ignore: decorator
+@unsafe
 export declare function fd_advise(
   /** Input: The file descriptor for the file for which to provide file advisory information. */
   fd: fd,
@@ -71,6 +83,8 @@ export declare function fd_advise(
 ): errno;
 
 /** Provide file advisory information on a file descriptor. */
+// @ts-ignore: decorator
+@unsafe
 export declare function fd_allocate(
   /** Input: The file descriptor for the file in which to allocate space. */
   fd: fd,
@@ -81,18 +95,24 @@ export declare function fd_allocate(
 ): errno;
 
 /** Close a file descriptor. */
+// @ts-ignore: decorator
+@unsafe
 export declare function fd_close(
   /** Input: The file descriptor to close. */
   fd: fd
 ): errno;
 
 /** Synchronize the data of a file to disk. */
+// @ts-ignore: decorator
+@unsafe
 export declare function fd_datasync(
   /** Input: The file descriptor of the file to synchronize to disk. */
   fd: fd
 ): errno;
 
 /** Get the attributes of a file descriptor. */
+// @ts-ignore: decorator
+@unsafe
 export declare function fd_fdstat_get(
   /** Input: The file descriptor to inspect. */
   fd: fd,
@@ -101,6 +121,8 @@ export declare function fd_fdstat_get(
 ): errno;
 
 /** Adjust the flags associated with a file descriptor. */
+// @ts-ignore: decorator
+@unsafe
 export declare function fd_fdstat_set_flags(
   /** Input: The file descriptor to operate on. */
   fd: fd,
@@ -109,6 +131,8 @@ export declare function fd_fdstat_set_flags(
 ): errno;
 
 /** Adjust the rights associated with a file descriptor. */
+// @ts-ignore: decorator
+@unsafe
 export declare function fd_fdstat_set_rights(
   /** Input: The file descriptor to operate on. */
   fd: fd,
@@ -119,6 +143,8 @@ export declare function fd_fdstat_set_rights(
 ): errno;
 
 /** Return the attributes of an open file. */
+// @ts-ignore: decorator
+@unsafe
 export declare function fd_filestat_get(
   /** Input: The file descriptor to inspect. */
   fd: fd,
@@ -127,6 +153,8 @@ export declare function fd_filestat_get(
 ): errno;
 
 /** Adjust the size of an open file. If this increases the file's size, the extra bytes are filled with zeros. */
+// @ts-ignore: decorator
+@unsafe
 export declare function fd_filestat_set_size(
   /** Input: A file descriptor for the file to adjust. */
   fd: fd,
@@ -135,6 +163,8 @@ export declare function fd_filestat_set_size(
 ): errno;
 
 /** Adjust the timestamps of an open file or directory. */
+// @ts-ignore: decorator
+@unsafe
 export declare function fd_filestat_set_times(
   /** Input: The file descriptor to operate on. */
   fd: fd,
@@ -147,6 +177,8 @@ export declare function fd_filestat_set_times(
 ): errno;
 
 /** Read from a file descriptor, without using and updating the file descriptor's offset. */
+// @ts-ignore: decorator
+@unsafe
 export declare function fd_pread(
   /** Input: The file descriptor from which to read data. */
   fd: fd,
@@ -161,6 +193,8 @@ export declare function fd_pread(
 ): errno;
 
 /** Return a description of the given preopened file descriptor. */
+// @ts-ignore: decorator
+@unsafe
 export declare function fd_prestat_get(
   /** Input: The file descriptor about which to retrieve information. */
   fd: fd,
@@ -169,6 +203,8 @@ export declare function fd_prestat_get(
 ): errno;
 
 /** Return a description of the given preopened file descriptor. */
+// @ts-ignore: decorator
+@unsafe
 export declare function fd_prestat_dir_name(
   /** Input: The file descriptor about which to retrieve information. */
   fd: fd,
@@ -179,6 +215,8 @@ export declare function fd_prestat_dir_name(
 ): errno;
 
 /** Write to a file descriptor, without using and updating the file descriptor's offset. */
+// @ts-ignore: decorator
+@unsafe
 export declare function fd_pwrite(
   /** Input: The file descriptor to which to write data. */
   fd: fd,
@@ -193,6 +231,8 @@ export declare function fd_pwrite(
 ): errno;
 
 /** Read from a file descriptor. */
+// @ts-ignore: decorator
+@unsafe
 export declare function fd_read(
   /** Input: The file descriptor from which to read data. */
   fd: fd,
@@ -205,6 +245,8 @@ export declare function fd_read(
 ): errno;
 
 /** Read directory entries from a directory. */
+// @ts-ignore: decorator
+@unsafe
 export declare function fd_readdir(
   /** Input: Directory from which to read the directory entries. */
   fd: fd,
@@ -219,6 +261,8 @@ export declare function fd_readdir(
 ): errno;
 
 /** Atomically replace a file descriptor by renumbering another file descriptor. */
+// @ts-ignore: decorator
+@unsafe
 export declare function fd_renumber(
   /** Input: The file descriptor to renumber. */
   from: fd,
@@ -227,6 +271,8 @@ export declare function fd_renumber(
 ): errno;
 
 /** Move the offset of a file descriptor. */
+// @ts-ignore: decorator
+@unsafe
 export declare function fd_seek(
   /** Input: The file descriptor to operate on. */
   fd: fd,
@@ -239,12 +285,16 @@ export declare function fd_seek(
 ): errno;
 
 /** Synchronize the data and metadata of a file to disk. */
+// @ts-ignore: decorator
+@unsafe
 export declare function fd_sync(
   /** Input: The file descriptor of the file containing the data and metadata to synchronize to disk. */
   fd: fd
 ): errno;
 
 /** Return the current offset of a file descriptor. */
+// @ts-ignore: decorator
+@unsafe
 export declare function fd_tell(
   /** Input: The file descriptor to inspect. */
   fd: fd,
@@ -253,6 +303,8 @@ export declare function fd_tell(
 ): errno;
 
 /** Write to a file descriptor. */
+// @ts-ignore: decorator
+@unsafe
 export declare function fd_write(
   /** Input: The file descriptor to which to write data. */
   fd: fd,
@@ -265,6 +317,8 @@ export declare function fd_write(
 ): errno;
 
 /* Create a directory. */
+// @ts-ignore: decorator
+@unsafe
 export declare function path_create_directory(
   /** Input: The working directory at which the resolution of the path starts. */
   fd: fd,
@@ -275,6 +329,8 @@ export declare function path_create_directory(
 ): errno;
 
 /** Return the attributes of a file or directory. */
+// @ts-ignore: decorator
+@unsafe
 export declare function path_filestat_get(
   /** Input: The working directory at which the resolution of the path starts. */
   fd: fd,
@@ -289,6 +345,8 @@ export declare function path_filestat_get(
 ): errno;
 
 /** Adjust the timestamps of a file or directory. */
+// @ts-ignore: decorator
+@unsafe
 export declare function path_filestat_set_times(
   /** Input: The working directory at which the resolution of the path starts. */
   fd: fd,
@@ -307,6 +365,8 @@ export declare function path_filestat_set_times(
 ): errno;
 
 /** Create a hard link. */
+// @ts-ignore: decorator
+@unsafe
 export declare function path_link(
   /** Input: The working directory at which the resolution of the old path starts. */
   old_fd: fd,
@@ -325,6 +385,8 @@ export declare function path_link(
 ): errno;
 
 /** Open a file or directory. */
+// @ts-ignore: decorator
+@unsafe
 export declare function path_open(
   /** Input: The working directory at which the resolution of the path starts. */
   dirfd: fd,
@@ -347,6 +409,8 @@ export declare function path_open(
 ): errno;
 
 /** Read the contents of a symbolic link. */
+// @ts-ignore: decorator
+@unsafe
 export declare function path_readlink(
   /** Input: The working directory at which the resolution of the path starts. */
   fd: fd,
@@ -363,6 +427,8 @@ export declare function path_readlink(
 ): errno;
 
 /** Remove a directory. */
+// @ts-ignore: decorator
+@unsafe
 export declare function path_remove_directory(
   /** Input: The working directory at which the resolution of the path starts. */
   fd: fd,
@@ -373,6 +439,8 @@ export declare function path_remove_directory(
 ): errno;
 
 /** Rename a file or directory. */
+// @ts-ignore: decorator
+@unsafe
 export declare function path_rename(
   /** Input: The working directory at which the resolution of the old path starts. */
   old_fd: fd,
@@ -389,6 +457,8 @@ export declare function path_rename(
 ): errno;
 
 /** Create a symbolic link. */
+// @ts-ignore: decorator
+@unsafe
 export declare function path_symlink(
   /** Input: The contents of the symbolic link. */
   old_path: ptr<char>,
@@ -403,6 +473,8 @@ export declare function path_symlink(
 ): errno;
 
 /** Unlink a file. */
+// @ts-ignore: decorator
+@unsafe
 export declare function path_unlink_file(
   /** Input: The working directory at which the resolution of the path starts. */
   fd: fd,
@@ -413,6 +485,8 @@ export declare function path_unlink_file(
 ): errno;
 
 /** Concurrently poll for the occurrence of a set of events. */
+// @ts-ignore: decorator
+@unsafe
 export declare function poll_oneoff(
   /** Input: The events to which to subscribe. */
   in_: ptr<struct<subscription>>,
@@ -425,18 +499,24 @@ export declare function poll_oneoff(
 ): errno;
 
 /** Terminate the process normally. An exit code of 0 indicates successful termination of the program. The meanings of other values is dependent on the environment. */
+// @ts-ignore: decorator
+@unsafe
 export declare function proc_exit(
   /** Input: The exit code returned by the process. */
   rval: u32
 ): void;
 
 /** Send a signal to the process of the calling thread. */
+// @ts-ignore: decorator
+@unsafe
 export declare function proc_raise(
   /** Input: The signal condition to trigger. */
   sig: signal
 ): errno;
 
 /** Write high-quality random data into a buffer. */
+// @ts-ignore: decorator
+@unsafe
 export declare function random_get(
   /** Input: The buffer to fill with random data. */
   buf: usize,
@@ -445,9 +525,13 @@ export declare function random_get(
 ): errno;
 
 /** Temporarily yield execution of the calling thread. */
+// @ts-ignore: decorator
+@unsafe
 export declare function sched_yield(): errno;
 
 /** Receive a message from a socket. */
+// @ts-ignore: decorator
+@unsafe
 export declare function sock_recv(
   /** Input: The socket on which to receive data. */
   sock: fd,
@@ -464,6 +548,8 @@ export declare function sock_recv(
 ): errno;
 
 /** Send a message on a socket. */
+// @ts-ignore: decorator
+@unsafe
 export declare function sock_send(
   /** Input: The socket on which to send data. */
   sock: fd,
@@ -478,6 +564,8 @@ export declare function sock_send(
 ): errno;
 
 /** Shut down socket send and receive channels. */
+// @ts-ignore: decorator
+@unsafe
 export declare function sock_shutdown(
   /** Input: The socket on which to shutdown channels. */
   sock: fd,
@@ -869,8 +957,91 @@ export namespace errno {
 }
 export type errno = u16;
 
-/** An event that occurred. */
-@unmanaged export abstract class event {
+/** Translates an error code to a string. */
+export function errnoToString(err: errno): string {
+  switch (err) {
+    case errno.SUCCESS: return "SUCCESS";
+    case errno.TOOBIG: return "TOOBIG";
+    case errno.ACCES: return "ACCES";
+    case errno.ADDRINUSE: return "ADDRINUSE";
+    case errno.ADDRNOTAVAIL: return "ADDRNOTAVAIL";
+    case errno.AFNOSUPPORT: return "AFNOSUPPORT";
+    case errno.AGAIN: return "AGAIN";
+    case errno.ALREADY: return "ALREADY";
+    case errno.BADF: return "BADF";
+    case errno.BADMSG: return "BADMSG";
+    case errno.BUSY: return "BUSY";
+    case errno.CANCELED: return "CANCELED";
+    case errno.CHILD: return "CHILD";
+    case errno.CONNABORTED: return "CONNABORTED";
+    case errno.CONNREFUSED: return "CONNREFUSED";
+    case errno.CONNRESET: return "CONNRESET";
+    case errno.DEADLK: return "DEADLK";
+    case errno.DESTADDRREQ: return "DESTADDRREQ";
+    case errno.DOM: return "DOM";
+    case errno.DQUOT: return "DQUOT";
+    case errno.EXIST: return "EXIST";
+    case errno.FAULT: return "FAULT";
+    case errno.FBIG: return "FBIG";
+    case errno.HOSTUNREACH: return "HOSTUNREACH";
+    case errno.IDRM: return "IDRM";
+    case errno.ILSEQ: return "ILSEQ";
+    case errno.INPROGRESS: return "INPROGRESS";
+    case errno.INTR: return "INTR";
+    case errno.INVAL: return "INVAL";
+    case errno.IO: return "IO";
+    case errno.ISCONN: return "ISCONN";
+    case errno.ISDIR: return "ISDIR";
+    case errno.LOOP: return "LOOP";
+    case errno.MFILE: return "MFILE";
+    case errno.MLINK: return "MLINK";
+    case errno.MSGSIZE: return "MSGSIZE";
+    case errno.MULTIHOP: return "MULTIHOP";
+    case errno.NAMETOOLONG: return "NAMETOOLONG";
+    case errno.NETDOWN: return "NETDOWN";
+    case errno.NETRESET: return "NETRESET";
+    case errno.NETUNREACH: return "NETUNREACH";
+    case errno.NFILE: return "NFILE";
+    case errno.NOBUFS: return "NOBUFS";
+    case errno.NODEV: return "NODEV";
+    case errno.NOENT: return "NOENT";
+    case errno.NOEXEC: return "NOEXEC";
+    case errno.NOLCK: return "NOLCK";
+    case errno.NOLINK: return "NOLINK";
+    case errno.NOMEM: return "NOMEM";
+    case errno.NOMSG: return "NOMSG";
+    case errno.NOPROTOOPT: return "NOPROTOOPT";
+    case errno.NOSPC: return "NOSPC";
+    case errno.NOSYS: return "NOSYS";
+    case errno.NOTCONN: return "NOTCONN";
+    case errno.NOTDIR: return "NOTDIR";
+    case errno.NOTEMPTY: return "NOTEMPTY";
+    case errno.NOTRECOVERABLE: return "NOTRECOVERABLE";
+    case errno.NOTSOCK: return "NOTSOCK";
+    case errno.NOTSUP: return "NOTSUP";
+    case errno.NOTTY: return "NOTTY";
+    case errno.NXIO: return "NXIO";
+    case errno.OVERFLOW: return "OVERFLOW";
+    case errno.OWNERDEAD: return "OWNERDEAD";
+    case errno.PERM: return "PERM";
+    case errno.PIPE: return "PIPE";
+    case errno.PROTO: return "PROTO";
+    case errno.PROTONOSUPPORT: return "PROTONOSUPPORT";
+    case errno.PROTOTYPE: return "PROTOTYPE";
+    case errno.RANGE: return "RANGE";
+    case errno.ROFS: return "ROFS";
+    case errno.SPIPE: return "SPIPE";
+    case errno.SRCH: return "SRCH";
+    case errno.STALE: return "STALE";
+    case errno.TIMEDOUT: return "TIMEDOUT";
+    case errno.TXTBSY: return "TXTBSY";
+    case errno.XDEV: return "XDEV";
+    case errno.NOTCAPABLE: return "NOTCAPABLE";
+  }
+  return "UNKNOWN";
+}
+
+@unmanaged abstract class $event { // size=16/32
   /** User-provided value that got attached to `subscription#userdata`. */
   userdata: userdata;
   /** If non-zero, an error that occurred while processing the subscription request. */
@@ -881,8 +1052,14 @@ export type errno = u16;
   private __padding0: u16;
 }
 
+/** An event that occurred. */
+@unmanaged export abstract class event extends $event {
+  private __padding1: u64;
+  private __padding2: u64;
+}
+
 /** An event that occurred when type is `eventtype.FD_READ` or `eventtype.FD_WRITE`. */
-@unmanaged export class event_fd_readwrite extends event {
+@unmanaged export class event_fd_readwrite extends $event {
   /* The number of bytes available for reading or writing. */
   nbytes: filesize;
   /* The state of the file descriptor. */
@@ -1097,14 +1274,18 @@ export namespace preopentype {
 }
 export type preopentype = u8;
 
-/* Information about a pre-opened capability. */
-export abstract class prestat {
+@unmanaged abstract class $prestat { // WASM32: size=1/8, WASM64: size=1/16
   /* The type of the pre-opened capability. */
   type: preopentype;
 }
 
+/* Information about a pre-opened capability. */
+@unmanaged export abstract class prestat extends $prestat {
+  private __padding0: usize;
+}
+
 /** The contents of a $prestat when type is `preopentype.DIR`. */
-export class prestat_dir extends prestat {
+@unmanaged export class prestat_dir extends $prestat {
   /** The length of the directory name for use with `fd_prestat_dir_name`. */
   name_len: usize;
 }
@@ -1401,8 +1582,7 @@ export namespace subclockflags {
 }
 export type subclockflags = u16;
 
-/** Subscription to an event. */
-@unmanaged export abstract class subscription {
+@unmanaged abstract class $subscription { // size=16/48
   /** User-provided value that is attached to the subscription. */
   userdata: userdata;
   /** The type of the event to which to subscribe. */
@@ -1411,8 +1591,16 @@ export type subclockflags = u16;
   private __padding0: u32;
 }
 
+/** Subscription to an event. */
+@unmanaged export abstract class subscription extends $subscription {
+  private __padding1: u64;
+  private __padding2: u64;
+  private __padding3: u64;
+  private __padding4: u64;
+}
+
 /* Subscription to an event of type `eventtype.CLOCK`.**/
-@unmanaged export class subscription_clock extends subscription {
+@unmanaged export class subscription_clock extends $subscription {
   /** The clock against which to compare the timestamp. */
   clock_id: clockid;
   /** The absolute or relative timestamp. */
@@ -1426,9 +1614,13 @@ export type subclockflags = u16;
 }
 
 /* Subscription to an event of type `eventtype.FD_READ` or `eventtype.FD_WRITE`.**/
-@unmanaged export class subscription_fd_readwrite extends subscription {
+@unmanaged export class subscription_fd_readwrite extends $subscription {
   /** The file descriptor on which to wait for it to become ready for reading or writing. */
   file_descriptor: fd;
+
+  private __padding1: u64;
+  private __padding2: u64;
+  private __padding3: u64;
 }
 
 /** Timestamp in nanoseconds. */

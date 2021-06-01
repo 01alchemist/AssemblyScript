@@ -1,5 +1,11 @@
+/**
+ * @fileoverview Definitions for asc.
+ * @license Apache-2.0
+ */
+
 import { OptionDescription } from "./util/options";
 export { OptionDescription };
+import { Transform } from "./transform";
 
 /** Ready promise resolved once/if the compiler is ready. */
 export const ready: Promise<void>;
@@ -50,8 +56,41 @@ export interface MemoryStream extends OutputStream {
   toString(): string;
 }
 
+/** Relevant subset of the Source class for diagnostic reporting. */
+export interface Source {
+  /** Normalized path with file extension. */
+  normalizedPath: string;
+}
+
+/** Relevant subset of the Range class for diagnostic reporting. */
+export interface Range {
+  /** Start offset within the source file. */
+  start: number;
+  /** End offset within the source file. */
+  end: number;
+  /** Respective source file. */
+  source: Source;
+}
+
+/** Relevant subset of the DiagnosticMessage class for diagnostic reporting. */
+export interface DiagnosticMessage {
+  /** Message code. */
+  code: number;
+  /** Message category. */
+  category: number;
+  /** Message text. */
+  message: string;
+  /** Respective source range, if any. */
+  range: Range | null;
+  /** Related range, if any. */
+  relatedRange: Range | null;
+}
+
+/** A function handling diagnostic messages. */
+type DiagnosticReporter = (diagnostic: DiagnosticMessage) => void;
+
 /** Compiler options. */
-interface CompilerOptions {
+export interface CompilerOptions {
   /** Prints just the compiler's version and exits. */
   version?: boolean;
   /** Prints the help message and exits. */
@@ -64,8 +103,6 @@ interface CompilerOptions {
   shrinkLevel?: number;
   /** Re-optimizes until no further improvements can be made. */
   converge?: boolean;
-  /** Validates the module using Binaryen. Exits if invalid. */
-  validate?: boolean;
   /** Specifies the base directory of input and output files. */
   baseDir?: string;
   /** Specifies the output file. File extension indicates format. */
@@ -74,8 +111,8 @@ interface CompilerOptions {
   binaryFile?: string;
   /** Specifies the text output file (.wat). */
   textFile?: string;
-  /** Specifies the asm.js output file (.js). */
-  asmjsFile?: string;
+  /** Specifies the JavaScript (via wasm2js) output file (.js). */
+  jsFile?: string;
   /** Specifies the WebIDL output file (.webidl). */
   idlFile?: string;
   /** Specifies the TypeScript definition output file (.d.ts). */
@@ -94,8 +131,14 @@ interface CompilerOptions {
   noEmit?: boolean;
   /** Imports the memory provided as 'env.memory'. */
   importMemory?: boolean;
-  /** Declare memory as shared by settings the max shared memory. */
-  sharedMemory?: number;
+  /** Does not export the memory as 'memory'. */
+  noExportMemory?: boolean;
+  /** Sets the initial memory size in pages. */
+  initialMemory?: number;
+  /** Sets the maximum memory size in pages. */
+  maximumMemory?: number;
+  /** Declare memory as shared. Requires maximumMemory. */
+  sharedMemory?: boolean;
   /** Sets the start offset of compiler-generated static memory. */
   memoryBase?: number;
   /** Imports the function table provided as 'env.table'. */
@@ -114,6 +157,8 @@ interface CompilerOptions {
   trapMode?: "allow" | "clamp" | "js";
   /** Specifies additional Binaryen passes to run. */
   runPasses?: string | string[];
+  /** Skips validating the module using Binaryen. */
+  noValidate?: boolean;
   /** Enables WebAssembly features that are disabled by default. */
   enable?: string | string[];
   /** Disables WebAssembly features that are enabled by default. */
@@ -128,14 +173,14 @@ interface CompilerOptions {
   listFiles?: boolean;
   /** Prints measuring information on I/O and compile times. */
   measure?: boolean;
-  /** Prints the module's runtime type information to stderr. */
-  printrtti?: boolean;
   /** Disables terminal colors. */
   noColors?: boolean;
+  /** Specifies an alternative file extension. */
+  extension?: string;
 }
 
 /** Compiler API options. */
-interface APIOptions {
+export interface APIOptions {
   /** Standard output stream to use. */
   stdout?: OutputStream;
   /** Standard error stream to use. */
@@ -146,6 +191,10 @@ interface APIOptions {
   writeFile?: (filename: string, contents: Uint8Array, baseDir: string) => void;
   /** Lists all files within a directory. */
   listFiles?: (dirname: string, baseDir: string) => string[] | null;
+  /** Handler for diagnostic messages. */
+  reportDiagnostic?: DiagnosticReporter;
+  /** Additional transforms to apply. */
+  transforms?: Transform[];
 }
 
 /** Convenience function that parses and compiles source strings directly. */
@@ -165,7 +214,7 @@ export function main(argv: string[], options: APIOptions, callback?: (err: Error
 export function main(argv: string[], callback?: (err: Error | null) => number): number;
 
 /** Checks diagnostics emitted so far for errors. */
-export function checkDiagnostics(emitter: any, stderr?: OutputStream): boolean;
+export function checkDiagnostics(emitter: Record<string,unknown>, stderr?: OutputStream, reportDiagnostic?: DiagnosticReporter): boolean;
 
 /** An object of stats for the current task. */
 export interface Stats {
@@ -189,7 +238,7 @@ export interface Stats {
 export function createStats(): Stats;
 
 /** Measures the execution time of the specified function.  */
-export function measure(fn: Function): number;
+export function measure(fn: () => void): number;
 
 /** Formats a high resolution time to a human readable string. */
 export function formatTime(time: number): string;
@@ -201,4 +250,4 @@ export function printStats(stats: Stats, output: OutputStream): void;
 export function createMemoryStream(fn?: (chunk: Uint8Array | string) => void): MemoryStream;
 
 /** Compatible TypeScript compiler options for syntax highlighting etc. */
-export const tscOptions: { [key: string]: any };
+export const tscOptions: Record<string,unknown>;

@@ -56,3 +56,11 @@ export namespace outer {
     export const a = 42;
   }
 }
+
+export {renamed_mul} from "./export"; 
+
+// interfaces (should not error)
+export interface Iface {}
+export namespace outer {
+  export interface Iface {}
+}

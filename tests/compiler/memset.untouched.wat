@@ -1,16 +1,19 @@
 (module
  (type $none_=>_none (func))
- (type $i32_i32_i32_i32_=>_none (func (param i32 i32 i32 i32)))
  (type $i32_i32_i32_=>_i32 (func (param i32 i32 i32) (result i32)))
+ (type $i32_i32_i32_i32_=>_none (func (param i32 i32 i32 i32)))
  (import "env" "abort" (func $~lib/builtins/abort (param i32 i32 i32 i32)))
- (memory $0 1)
- (data (i32.const 16) "\12\00\00\00\01\00\00\00\01\00\00\00\12\00\00\00m\00e\00m\00s\00e\00t\00.\00t\00s\00")
- (table $0 1 funcref)
  (global $memset/dest (mut i32) (i32.const 0))
- (global $~lib/heap/__heap_base i32 (i32.const 52))
+ (global $~lib/memory/__data_end i32 (i32.const 60))
+ (global $~lib/memory/__stack_pointer (mut i32) (i32.const 16444))
+ (global $~lib/memory/__heap_base i32 (i32.const 16444))
+ (memory $0 1)
+ (data (i32.const 12) ",\00\00\00\00\00\00\00\00\00\00\00\01\00\00\00\12\00\00\00m\00e\00m\00s\00e\00t\00.\00t\00s\00\00\00\00\00\00\00\00\00\00\00")
+ (table $0 1 funcref)
+ (elem $0 (i32.const 1))
  (export "memory" (memory $0))
  (start $~start)
- (func $memset/memset (; 1 ;) (param $0 i32) (param $1 i32) (param $2 i32) (result i32)
+ (func $memset/memset (param $0 i32) (param $1 i32) (param $2 i32) (result i32)
   (local $3 i32)
   (local $4 i32)
   (local $5 i32)
@@ -273,8 +276,8 @@
   end
   local.get $3
  )
- (func $start:memset (; 2 ;)
-  global.get $~lib/heap/__heap_base
+ (func $start:memset
+  global.get $~lib/memory/__heap_base
   global.set $memset/dest
   global.get $memset/dest
   i32.const 1
@@ -290,7 +293,7 @@
    i32.const 0
    i32.const 32
    i32.const 72
-   i32.const 0
+   i32.const 1
    call $~lib/builtins/abort
    unreachable
   end
@@ -305,7 +308,7 @@
    i32.const 0
    i32.const 32
    i32.const 73
-   i32.const 0
+   i32.const 1
    call $~lib/builtins/abort
    unreachable
   end
@@ -325,7 +328,7 @@
    i32.const 0
    i32.const 32
    i32.const 77
-   i32.const 0
+   i32.const 1
    call $~lib/builtins/abort
    unreachable
   end
@@ -340,7 +343,7 @@
    i32.const 0
    i32.const 32
    i32.const 78
-   i32.const 0
+   i32.const 1
    call $~lib/builtins/abort
    unreachable
   end
@@ -355,7 +358,7 @@
    i32.const 0
    i32.const 32
    i32.const 79
-   i32.const 0
+   i32.const 1
    call $~lib/builtins/abort
    unreachable
   end
@@ -370,12 +373,12 @@
    i32.const 0
    i32.const 32
    i32.const 80
-   i32.const 0
+   i32.const 1
    call $~lib/builtins/abort
    unreachable
   end
  )
- (func $~start (; 3 ;)
+ (func $~start
   call $start:memset
  )
 )

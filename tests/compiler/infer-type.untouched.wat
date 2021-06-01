@@ -4,8 +4,6 @@
  (type $none_=>_i64 (func (result i64)))
  (type $none_=>_f32 (func (result f32)))
  (type $none_=>_f64 (func (result f64)))
- (memory $0 0)
- (table $0 1 funcref)
  (global $infer-type/i i32 (i32.const 10))
  (global $infer-type/I i64 (i64.const 4294967296))
  (global $infer-type/F f64 (f64.const 1.5))
@@ -15,9 +13,15 @@
  (global $infer-type/rF (mut f64) (f64.const 0))
  (global $infer-type/inferi (mut i32) (i32.const -2147483648))
  (global $infer-type/inferu (mut i32) (i32.const 2147483647))
+ (global $~lib/memory/__data_end i32 (i32.const 8))
+ (global $~lib/memory/__stack_pointer (mut i32) (i32.const 16392))
+ (global $~lib/memory/__heap_base i32 (i32.const 16392))
+ (memory $0 0)
+ (table $0 1 funcref)
+ (elem $0 (i32.const 1))
  (export "memory" (memory $0))
  (start $~start)
- (func $infer-type/locals (; 0 ;)
+ (func $infer-type/locals
   (local $0 i32)
   (local $1 i64)
   (local $2 f64)
@@ -37,19 +41,19 @@
   global.get $infer-type/F
   local.set $5
  )
- (func $infer-type/reti (; 1 ;) (result i32)
+ (func $infer-type/reti (result i32)
   i32.const 0
  )
- (func $infer-type/retI (; 2 ;) (result i64)
+ (func $infer-type/retI (result i64)
   i64.const 0
  )
- (func $infer-type/retf (; 3 ;) (result f32)
+ (func $infer-type/retf (result f32)
   f32.const 0
  )
- (func $infer-type/refF (; 4 ;) (result f64)
+ (func $infer-type/refF (result f64)
   f64.const 0
  )
- (func $start:infer-type (; 5 ;)
+ (func $start:infer-type
   (local $0 i32)
   (local $1 i32)
   (local $2 i32)
@@ -94,8 +98,13 @@
     br $for-loop|0
    end
   end
+  i32.const 0
+  i32.eqz
+  drop
+  i32.const 1
+  drop
  )
- (func $~start (; 6 ;)
+ (func $~start
   call $start:infer-type
  )
 )

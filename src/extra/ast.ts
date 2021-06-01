@@ -1,10 +1,10 @@
 /**
- * Abstract Syntax Tree extras.
+ * @fileoverview Abstract Syntax Tree extras.
  *
- * Not needed in a standalone compiler but useful for testing the parser.
+ * Provides serialization of the AssemblyScript AST back to it source form.
  *
- * @module extra/ast
- *//***/
+ * @license Apache-2.0
+ */
 
 import {
   Node,
@@ -25,6 +25,7 @@ import {
   FloatLiteralExpression,
   IntegerLiteralExpression,
   StringLiteralExpression,
+  TemplateLiteralExpression,
   RegexpLiteralExpression,
   ArrayLiteralExpression,
   AssertionExpression,
@@ -44,7 +45,6 @@ import {
   ClassExpression,
   ObjectLiteralExpression,
 
-  Statement,
   BlockStatement,
   BreakStatement,
   ContinueStatement,
@@ -55,6 +55,7 @@ import {
   ExportDefaultStatement,
   ExpressionStatement,
   ForStatement,
+  ForOfStatement,
   IfStatement,
   ImportStatement,
   InstanceOfExpression,
@@ -65,13 +66,13 @@ import {
   VariableStatement,
   WhileStatement,
 
+  DeclarationStatement,
   ClassDeclaration,
   EnumDeclaration,
   EnumValueDeclaration,
   FieldDeclaration,
   FunctionDeclaration,
   ImportDeclaration,
-  IndexSignatureDeclaration,
   InterfaceDeclaration,
   MethodDeclaration,
   NamespaceDeclaration,
@@ -83,7 +84,7 @@ import {
   ParameterKind,
   ExportMember,
   SwitchCase,
-  DeclarationStatement,
+  IndexSignatureNode,
 
   isTypeOmitted
 } from "../ast";
@@ -251,6 +252,10 @@ export class ASTBuilder {
         this.visitForStatement(<ForStatement>node);
         break;
       }
+      case NodeKind.FOROF: {
+        this.visitForOfStatement(<ForOfStatement>node);
+        break;
+      }
       case NodeKind.IF: {
         this.visitIfStatement(<IfStatement>node);
         break;
@@ -310,10 +315,6 @@ export class ASTBuilder {
         this.visitImportDeclaration(<ImportDeclaration>node);
         break;
       }
-      case NodeKind.INDEXSIGNATUREDECLARATION: {
-        this.visitIndexSignatureDeclaration(<IndexSignatureDeclaration>node);
-        break;
-      }
       case NodeKind.INTERFACEDECLARATION: {
         this.visitInterfaceDeclaration(<InterfaceDeclaration>node);
         break;
@@ -351,6 +352,10 @@ export class ASTBuilder {
       }
       case NodeKind.SWITCHCASE: {
         this.visitSwitchCase(<SwitchCase>node);
+        break;
+      }
+      case NodeKind.INDEXSIGNATURE: {
+        this.visitIndexSignature(<IndexSignatureNode>node);
         break;
       }
       default: assert(false);
@@ -466,10 +471,12 @@ export class ASTBuilder {
     var elements = node.elementExpressions;
     var numElements = elements.length;
     if (numElements) {
-      if (elements[0]) this.visitNode(<Expression>elements[0]);
+      let element = elements[0];
+      if (element) this.visitNode(element);
       for (let i = 1; i < numElements; ++i) {
+        element = elements[i];
         sb.push(", ");
-        if (elements[i]) this.visitNode(<Expression>elements[i]);
+        if (element) this.visitNode(element);
       }
     }
     sb.push("]");
@@ -529,6 +536,11 @@ export class ASTBuilder {
         sb.push("!");
         break;
       }
+      case AssertionKind.CONST: {
+        this.visitNode(node.expression);
+        sb.push(" as const");
+        break;
+      }
       default: assert(false);
     }
   }
@@ -544,7 +556,7 @@ export class ASTBuilder {
 
   visitCallExpression(node: CallExpression): void {
     this.visitNode(node.expression);
-    this.visitArguments(node.typeArguments, node.arguments);
+    this.visitArguments(node.typeArguments, node.args);
   }
 
   private visitArguments(typeArguments: TypeNode[] | null, args: Expression[]): void {
@@ -626,6 +638,10 @@ export class ASTBuilder {
         this.visitStringLiteralExpression(<StringLiteralExpression>node);
         break;
       }
+      case LiteralKind.TEMPLATE: {
+        this.visitTemplateLiteralExpression(<TemplateLiteralExpression>node);
+        break;
+      }
       case LiteralKind.REGEXP: {
         this.visitRegexpLiteralExpression(<RegexpLiteralExpression>node);
         break;
@@ -646,7 +662,7 @@ export class ASTBuilder {
   }
 
   visitFloatLiteralExpression(node: FloatLiteralExpression): void {
-    this.sb.push(node.value.toString(10));
+    this.sb.push(node.value.toString());
   }
 
   visitInstanceOfExpression(node: InstanceOfExpression): void {
@@ -659,11 +675,16 @@ export class ASTBuilder {
     this.sb.push(i64_to_string(node.value));
   }
 
-  visitStringLiteral(str: string, singleQuoted: bool = false): void {
+  visitStringLiteral(str: string): void {
+    var sb = this.sb;
+    sb.push("\"");
+    this.visitRawString(str, CharCode.DOUBLEQUOTE);
+    sb.push("\"");
+  }
+
+  private visitRawString(str: string, quote: CharCode): void {
     var sb = this.sb;
     var off = 0;
-    var quote = singleQuoted ? "'" : "\"";
-    sb.push(quote);
     var i = 0;
     for (let k = str.length; i < k;) {
       switch (str.charCodeAt(i)) {
@@ -710,7 +731,7 @@ export class ASTBuilder {
           break;
         }
         case CharCode.DOUBLEQUOTE: {
-          if (!singleQuoted) {
+          if (quote == CharCode.DOUBLEQUOTE) {
             if (i > off) sb.push(str.substring(off, i));
             sb.push("\\\"");
             off = ++i;
@@ -720,7 +741,7 @@ export class ASTBuilder {
           break;
         }
         case CharCode.SINGLEQUOTE: {
-          if (singleQuoted) {
+          if (quote == CharCode.SINGLEQUOTE) {
             if (i > off) sb.push(str.substring(off, i));
             sb.push("\\'");
             off = ++i;
@@ -735,6 +756,16 @@ export class ASTBuilder {
           off = ++i;
           break;
         }
+        case CharCode.BACKTICK: {
+          if (quote == CharCode.BACKTICK) {
+            if (i > off) sb.push(str.substring(off, i));
+            sb.push("\\`");
+            off = ++i;
+          } else {
+            ++i;
+          }
+          break;
+        }
         default: {
           ++i;
           break;
@@ -742,11 +773,28 @@ export class ASTBuilder {
       }
     }
     if (i > off) sb.push(str.substring(off, i));
-    sb.push(quote);
   }
 
   visitStringLiteralExpression(node: StringLiteralExpression): void {
     this.visitStringLiteral(node.value);
+  }
+
+  visitTemplateLiteralExpression(node: TemplateLiteralExpression): void {
+    var sb = this.sb;
+    var tag = node.tag;
+    var parts = node.parts;
+    var expressions = node.expressions;
+    if (tag) this.visitNode(tag);
+    sb.push("`");
+    this.visitRawString(parts[0], CharCode.BACKTICK);
+    assert(parts.length == expressions.length + 1);
+    for (let i = 0, k = expressions.length; i < k; ++i) {
+      sb.push("${");
+      this.visitNode(expressions[i]);
+      sb.push("}");
+      this.visitRawString(parts[i + 1], CharCode.BACKTICK);
+    }
+    sb.push("`");
   }
 
   visitRegexpLiteralExpression(node: RegexpLiteralExpression): void {
@@ -760,7 +808,7 @@ export class ASTBuilder {
   visitNewExpression(node: NewExpression): void {
     this.sb.push("new ");
     this.visitTypeName(node.typeName);
-    this.visitArguments(node.typeArguments, node.arguments);
+    this.visitArguments(node.typeArguments, node.args);
   }
 
   visitParenthesizedExpression(node: ParenthesizedExpression): void {
@@ -811,13 +859,13 @@ export class ASTBuilder {
 
   // statements
 
-  visitNodeAndTerminate(statement: Statement): void {
-    this.visitNode(statement);
+  visitNodeAndTerminate(node: Node): void {
+    this.visitNode(node);
     var sb = this.sb;
     if (
-      !sb.length ||                          // leading EmptyStatement
-      statement.kind == NodeKind.VARIABLE || // potentially assigns a FunctionExpression
-      statement.kind == NodeKind.EXPRESSION  // potentially assigns a FunctionExpression
+      !sb.length ||                     // leading EmptyStatement
+      node.kind == NodeKind.VARIABLE || // potentially assigns a FunctionExpression
+      node.kind == NodeKind.EXPRESSION  // potentially assigns a FunctionExpression
     ) {
       sb.push(";\n");
     } else {
@@ -893,7 +941,7 @@ export class ASTBuilder {
       sb.push("class");
     }
     var typeParameters = node.typeParameters;
-    if (typeParameters && typeParameters.length) {
+    if (typeParameters != null && typeParameters.length > 0) {
       sb.push("<");
       this.visitTypeParameter(typeParameters[0]);
       for (let i = 1, k = typeParameters.length; i < k; ++i) {
@@ -919,11 +967,16 @@ export class ASTBuilder {
         }
       }
     }
+    var indexSignature = node.indexSignature;
     var members = node.members;
     var numMembers = members.length;
-    if (numMembers) {
+    if (indexSignature !== null || numMembers) {
       sb.push(" {\n");
       let indentLevel = ++this.indentLevel;
+      if (indexSignature) {
+        indent(sb, indentLevel);
+        this.visitNodeAndTerminate(indexSignature);
+      }
       for (let i = 0, k = members.length; i < k; ++i) {
         let member = members[i];
         if (member.kind != NodeKind.FIELDDECLARATION || (<FieldDeclaration>member).parameterIndex < 0) {
@@ -954,6 +1007,7 @@ export class ASTBuilder {
   }
 
   visitEmptyStatement(node: EmptyStatement): void {
+    /* nop */
   }
 
   visitEnumDeclaration(node: EnumDeclaration, isDefault: bool = false): void {
@@ -988,9 +1042,10 @@ export class ASTBuilder {
 
   visitEnumValueDeclaration(node: EnumValueDeclaration): void {
     this.visitIdentifierExpression(node.name);
-    if (node.value) {
+    var initializer = node.initializer;
+    if (initializer) {
       this.sb.push(" = ");
-      this.visitNode(node.value);
+      this.visitNode(initializer);
     }
   }
 
@@ -1016,7 +1071,7 @@ export class ASTBuilder {
       sb.push("declare ");
     }
     var members = node.members;
-    if (members && members.length) {
+    if (members != null && members.length > 0) {
       let numMembers = members.length;
       sb.push("export {\n");
       let indentLevel = ++this.indentLevel;
@@ -1081,7 +1136,7 @@ export class ASTBuilder {
     this.serializeAccessModifiers(node);
     this.visitIdentifierExpression(node.name);
     var sb = this.sb;
-    if (node.flags & CommonFlags.DEFINITE_ASSIGNMENT) {
+    if (node.flags & CommonFlags.DEFINITELY_ASSIGNED) {
       sb.push("!");
     }
     var type = node.type;
@@ -1117,6 +1172,16 @@ export class ASTBuilder {
     } else {
       sb.push(";");
     }
+    sb.push(") ");
+    this.visitNode(node.statement);
+  }
+
+  visitForOfStatement(node: ForOfStatement): void {
+    var sb = this.sb;
+    sb.push("for (");
+    this.visitNode(node.variable);
+    sb.push(" of ");
+    this.visitNode(node.iterable);
     sb.push(") ");
     this.visitNode(node.statement);
   }
@@ -1282,7 +1347,7 @@ export class ASTBuilder {
     this.visitStringLiteralExpression(node.path);
   }
 
-  visitIndexSignatureDeclaration(node: IndexSignatureDeclaration): void {
+  visitIndexSignature(node: IndexSignatureNode): void {
     var sb = this.sb;
     sb.push("[key: ");
     this.visitTypeNode(node.keyType);
@@ -1306,7 +1371,7 @@ export class ASTBuilder {
     sb.push("interface ");
     this.visitIdentifierExpression(node.name);
     var typeParameters = node.typeParameters;
-    if (typeParameters && typeParameters.length) {
+    if (typeParameters != null && typeParameters.length > 0) {
       sb.push("<");
       this.visitTypeParameter(typeParameters[0]);
       for (let i = 1, k = typeParameters.length; i < k; ++i) {
@@ -1500,7 +1565,7 @@ export class ASTBuilder {
     this.visitIdentifierExpression(node.name);
     var type = node.type;
     var sb = this.sb;
-    if (node.flags & CommonFlags.DEFINITE_ASSIGNMENT) {
+    if (node.flags & CommonFlags.DEFINITELY_ASSIGNED) {
       sb.push("!");
     }
     if (type) {
@@ -1553,7 +1618,7 @@ export class ASTBuilder {
     var sb = this.sb;
     sb.push("@");
     this.visitNode(node.name);
-    var args = node.arguments;
+    var args = node.args;
     if (args) {
       sb.push("(");
       let numArgs = args.length;
@@ -1585,7 +1650,7 @@ export class ASTBuilder {
     var type = node.type;
     var initializer = node.initializer;
     if (type) {
-      if (kind == ParameterKind.OPTIONAL) sb.push("?");
+      if (kind == ParameterKind.OPTIONAL && !initializer) sb.push("?");
       if (!isTypeOmitted(type)) {
         sb.push(": ");
         this.visitTypeNode(type);

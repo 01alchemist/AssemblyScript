@@ -1,21 +1,25 @@
 (module
  (type $none_=>_none (func))
  (type $i32_=>_none (func (param i32)))
- (memory $0 0)
- (table $0 1 funcref)
  (global $scoped/aGlobal (mut i32) (i32.const 1))
  (global $scoped/aConstant i32 (i32.const 3))
  (global $scoped/aStartFunctionLocal (mut i32) (i32.const 2))
+ (global $~lib/memory/__data_end i32 (i32.const 8))
+ (global $~lib/memory/__stack_pointer (mut i32) (i32.const 16392))
+ (global $~lib/memory/__heap_base i32 (i32.const 16392))
+ (memory $0 0)
+ (table $0 1 funcref)
+ (elem $0 (i32.const 1))
  (export "memory" (memory $0))
  (start $~start)
- (func $scoped/fn (; 0 ;) (param $0 i32)
+ (func $scoped/fn (param $0 i32)
   (local $1 i32)
   i32.const 0
   local.set $1
   local.get $0
   local.set $1
  )
- (func $start:scoped (; 1 ;)
+ (func $start:scoped
   (local $0 i32)
   (local $1 i32)
   (local $2 i32)
@@ -63,7 +67,7 @@
   i32.const 42
   call $scoped/fn
  )
- (func $~start (; 2 ;)
+ (func $~start
   call $start:scoped
  )
 )

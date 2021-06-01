@@ -1,26 +1,31 @@
 /// <reference lib="esnext.bigint" />
 
-/** WebAssembly imports with two levels of nesting. */
-interface ImportsObject extends Record<string, any> {
-  env?: {
-    memory?: WebAssembly.Memory,
-    table?: WebAssembly.Table,
-    abort?(msg: number, file: number, line: number, column: number): void,
-    trace?(msg: number, numArgs?: number, ...args: number[]): void
-  };
+export interface ResultObject {
+  module: WebAssembly.Module;
+  instance: WebAssembly.Instance;
 }
 
+
+/** WebAssembly imports with an optional env object and two levels of nesting. */
+export type Imports = {
+  [key: string]: Record<string,unknown> | undefined;
+  env?: {
+    memory?: WebAssembly.Memory;
+    table?: WebAssembly.Table;
+    seed?(): number;
+    abort?(msg: number, file: number, line: number, column: number): void;
+    trace?(msg: number, numArgs?: number, ...args: number[]): void;
+    mark?(): void;
+  };
+};
+
 /** Utility mixed in by the loader. */
-interface ASUtil {
+export interface ASUtil {
   memory?: WebAssembly.Memory;
   table?: WebAssembly.Table;
 
   /** Explicit start function, if requested. */
   _start(): void;
-  /** Allocates a new string in the module's memory and returns a reference (pointer) to it. */
-  __allocString(str: string): number;
-  /** Allocates a new array in the module's memory and returns a reference (pointer) to it. */
-  __allocArray(id: number, values: ArrayLike<number>): number;
 
   /** Copies a string's value from the module's memory. */
   __getString(ptr: number): string;
@@ -77,28 +82,43 @@ interface ASUtil {
   /** Gets a live view on a Float64Array's values in the module's memory. */
   __getFloat64ArrayView(ptr: number): Float64Array;
 
-  /** Retains a reference to a managed object externally, making sure that it doesn't become collected prematurely. Returns the pointer. */
-  __retain(ptr: number): number;
-  /** Releases a previously retained reference to a managed object, allowing the runtime to collect it once its reference count reaches zero. */
-  __release(ptr: number): void;
-  /** Forcefully resets the heap to its initial offset, effectively clearing dynamic memory. Stub runtime only. */
-  __reset?(): void;
-  /** Allocates an instance of the class represented by the specified id. */
-  __alloc(size: number, id: number): number;
   /** Tests whether a managed object is an instance of the class represented by the specified base id. */
   __instanceof(ptr: number, baseId: number): boolean;
-  /** Forces a cycle collection. Only relevant if objects potentially forming reference cycles are used. */
-  __collect(): void;
+  /** Allocates a new string in the module's memory and returns a reference (pointer) to it. */
+  __newString(str: string): number;
+  /** Allocates a new array in the module's memory and returns a reference (pointer) to it. */
+  __newArray(id: number, values: ArrayLike<number>): number;
+
+  /** Allocates an instance of the class represented by the specified id. */
+  __new(size: number, id: number): number;
+  /** Pins a managed object externally, preventing it from becoming garbage collected. */
+  __pin(ptr: number): number;
+  /** Unpins a managed object externally, allowing it to become garbage collected. */
+  __unpin(ptr: number): void;
+  /** Performs a full garbage collection cycle. */
+  __collect(incremental?: boolean): void;
 }
 
 /** Asynchronously instantiates an AssemblyScript module from anything that can be instantiated. */
-export declare function instantiate<T extends {}>(source: WebAssembly.Module | BufferSource | Response | PromiseLike<WebAssembly.Module | BufferSource | Response>, imports?: ImportsObject): Promise<ASUtil & T>;
+export declare function instantiate<T extends Record<string,unknown>>(
+  source: WebAssembly.Module | BufferSource | Response | PromiseLike<WebAssembly.Module | BufferSource | Response>,
+  imports?: Imports
+): Promise<ResultObject & { exports: ASUtil & T }>;
 
 /** Synchronously instantiates an AssemblyScript module from a WebAssembly.Module or binary buffer. */
-export declare function instantiateSync<T extends {}>(source: WebAssembly.Module | BufferSource, imports?: ImportsObject): ASUtil & T;
+export declare function instantiateSync<T extends Record<string,unknown>>(
+  source: WebAssembly.Module | BufferSource,
+  imports?: Imports
+): ResultObject & { exports: ASUtil & T };
 
 /** Asynchronously instantiates an AssemblyScript module from a response, i.e. as obtained by `fetch`. */
-export declare function instantiateStreaming<T extends {}>(source: Response | PromiseLike<Response>, imports?: ImportsObject): Promise<ASUtil & T>;
+export declare function instantiateStreaming<T extends Record<string,unknown>>(
+  source: Response | PromiseLike<Response>,
+  imports?: Imports
+): Promise<ResultObject & { exports: ASUtil & T }>;
 
 /** Demangles an AssemblyScript module's exports to a friendly object structure. */
-export declare function demangle<T extends {}>(exports: {}, baseModule?: {}): T;
+export declare function demangle<T extends Record<string,unknown>>(
+  exports: Record<string,unknown>,
+  extendedExports?: Record<string,unknown>
+): T;
